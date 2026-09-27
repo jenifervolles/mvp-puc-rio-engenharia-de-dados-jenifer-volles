@@ -7,7 +7,7 @@
 
 Desenvolver um pipeline de Engenharia de Dados para tratamento, organização e análise de dados do transporte aéreo. O projeto busca transformar dados brutos em informações estruturadas que permitam responder a questões relacionadas à movimentação de passageiros, rotas, empresas aéreas e características das operações ao longo do período analisado, utilizando técnicas de tratamento, modelagem dimensional e consultas SQL.
 
-### Perguntas que serão respondidas
+### Perguntas do projeto
 1. Como a quantidade de passageiros transportados evoluiu ao longo dos anos?
 2. Quais foram as rotas com maior movimentação de passageiros ao longo do período analisado?
 3. Quais empresas aéreas apresentaram a maior média de passageiros por decolagem?
@@ -39,20 +39,32 @@ Os dados do CSV Dados Estatísticos do Transporte Aéreo da ANAC passam por duas
 1. Arquivo CSV bruto: O arquivo .csv foi salvo no Volume do Unity Catalog em: /Volumes/workspace/default/dados_anac
 Volumes são armazenamentos de arquivos gerenciados pelo Unity Catalog.
 
-2. Tabela Bronze — Delta Lake: o arquivo .csv original reside no Volume /Volumes/workspace/default/dados_anac e os dados foram materializados como uma tabela Delta em workspace.default.dados_anac_bronze — ambos no catálogo workspace, schema default, com armazenamento físico no S3 da AWS.
+2. Tabela Bronze: o arquivo .csv original reside no Volume /Volumes/workspace/default/dados_anac e os dados foram materializados como uma tabela Delta em workspace.default.dados_anac_bronze — ambos no catálogo workspace, schema default, com armazenamento físico no S3 da AWS.
 
 <img width="359" height="632" alt="image" src="https://github.com/user-attachments/assets/4cfba32f-d15f-458b-a5ab-8139a9246fde" />
 
+## ORGANIZAÇÃO DOS NOTEBOOKS
 
-## MODELAGEM: ORGANIZANDO OS DADOS
+O pipeline de dados foi organizado em notebooks separados de acordo com as etapas da arquitetura de dados, facilitando a organização, manutenção e execução de cada camada. Foram utilizados quatro notebooks:
 
-Foi utilizado o modelo Flat nas camadas Bronze e Silver (dados brutos e limpos em tabela única) e um Star Schema na camada Gold (fato central + 4 dimensões desnormalizadas + view de consulta), com catálogo de dados documentado tanto em markdown quanto no Unity Catalog.
-A linguagem utilizada durante esse projeto foi SQL.
+* **`Notebook MVP - Jenifer Volles - Bronze.ipynb`** → responsável pela **carga e criação da camada Bronze**, mantendo os dados em seu formato bruto, conforme disponibilizados pela ANAC.
 
-Na camada Bronze, os dados foram armazenados conforme recebidos da fonte. Na camada Silver, foram aplicados tratamentos de qualidade e padronização. Na camada Gold, os dados foram organizados em um modelo dimensional, separando informações descritivas em dimensões e métricas de movimentação na tabela fato. A partir desse modelo foram realizadas as consultas destinadas a responder às perguntas de negócio.
+* **`Notebook MVP - Jenifer Volles - Silver.ipynb`** → responsável pelo **tratamento e preparação dos dados da camada Silver**, incluindo remoção de colunas, eliminação de duplicidades e validações de qualidade.
+
+* **`Notebook MVP - Jenifer Volles - Gold.ipynb`** → responsável pela **construção da camada Gold**, incluindo as tabelas dimensão, a tabela fato e a criação das Views utilizadas para consulta dos dados.
+
+* **`Notebook MVP - Jenifer Volles - Análise dos dados.ipynb`** → responsável pelas **análises dos dados e consultas utilizadas para responder às perguntas do projeto**.
 
 
-## CARGA: CONSTRUINDO O PIPELINE DE ETL
+## IMPLEMENTAÇÃO E ARQUITETURA DO PIPELINE DE DADOS
+
+Nesta etapa foi desenvolvido o pipeline de dados para tratamento, organização e análise dos dados estatísticos do transporte aéreo disponibilizados pela ANAC. O processo foi desenvolvido utilizando **SQL** e estruturado segundo a arquitetura de camadas **Bronze, Silver e Gold**.
+
+Nas camadas **Bronze e Silver**, os dados foram mantidos em estruturas tabulares, sendo que a Bronze preserva os dados conforme recebidos da fonte e a Silver concentra as etapas de tratamento, limpeza e validação da qualidade dos dados.
+
+Na camada **Gold**, os dados foram organizados utilizando um **modelo dimensional do tipo Star Schema**, composto por uma tabela fato central e quatro dimensões: empresa, aeroporto, natureza e grupo de voo. Essa estrutura permite separar as informações descritivas das métricas utilizadas nas análises, facilitando a realização das consultas e a resposta às perguntas de negócio definidas no projeto.
+
+Além da modelagem, foi realizado o **catálogo de dados**, com a documentação dos campos e seus respectivos significados, utilizando tanto a documentação em Markdown quanto o **Unity Catalog**. Por fim, foi criada uma View que integra a tabela fato às dimensões, disponibilizando uma estrutura única para consulta e análise dos dados.
 
 ### Camada Bronze
 
@@ -82,11 +94,11 @@ Consulta ao catálogo de dados da tabela Bronze (dados_anac_bronze) via Unity Ca
 <img width="717" height="681" alt="image" src="https://github.com/user-attachments/assets/d23dc6f6-a1b4-4729-8f5e-fd0607d309b2" />
 
 
-Catálogo com detalhamento (Descrição) do significado de cada coluna.
+**Catálogo com detalhamento (Descrição) do significado de cada coluna:**
 
 *Os dados da **Descrição** foram realizados conforme a documentação dos metadados da ANAC: https://www.anac.gov.br/acesso-a-informacao/dados-abertos/areas-de-atuacao/voos-e-operacoes-aereas/dados-estatisticos-do-transporte-aereo/48-dados-estatisticos-do-transporte-aereo*
 
-### Dicionário de Colunas (38 colunas)
+**Dicionário de Colunas (38 colunas)**
 
 | Coluna | Tipo | Descrição |
 | --- | --- | --- |
@@ -352,14 +364,14 @@ Consulta dos dados na tabela dim_natureza_gold:
 
 A tabela dimensão grupo voo classifica os voos conforme o grupo de operação. Cada tipo de grupo possui um identificador único (`GRUPO_VOO_ID`) utilizado como chave primária desta tabela.
 
-## Dicionário de Colunas
+**Dicionário de Colunas**
 
 | Coluna | Tipo | Descrição | Chave |
 | --- | --- | --- | --- |
 | `GRUPO_VOO_ID` | int | Identificador único sequencial, gerado por `ROW_NUMBER()` ordenado por `GRUPO_DE_VOO` | **Primária** |
 | `GRUPO_DE_VOO` | string | Tipo de grupo do voo. Valores: `IMPRODUTIVO`, `NÃO IDENTIFICADO`, `NÃO REGULAR`, `REGULAR` | — |
 
-## Regras de Carga
+**Regras de Carga**
 
 1. **Origem dos dados:** `workspace.default.dados_anac_silver`
 2. **Deduplicação:** `SELECT DISTINCT` garante que cada tipo de grupo aparece apenas uma vez
@@ -469,3 +481,12 @@ Esta view é consumida por todas as 5 perguntas do projeto:
 3. Média de passageiros por decolagem — `SUM(DECOLAGENS)` como divisor
 4. Rotas com maiores distâncias — `MAX(DISTANCIA_VOADA_KM)`
 5. Registros com mais passageiros — `ORDER BY total_passageiros DESC`
+
+Por fim, o projeto final ficou dessa forma:
+
+<img width="480" height="743" alt="image" src="https://github.com/user-attachments/assets/d8695e10-99e0-4c2f-9f47-2aa8bbe8fd66" />
+
+<img width="475" height="883" alt="image" src="https://github.com/user-attachments/assets/25e92456-bc89-4619-bda3-be9e3b3e9a1a" />
+
+
+## Análise Final dos Dados
