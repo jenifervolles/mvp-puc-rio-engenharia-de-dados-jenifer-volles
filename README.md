@@ -490,3 +490,66 @@ Por fim, o projeto final ficou dessa forma:
 
 
 ## Análise Final dos Dados
+
+Abaixo segue as consultas analíticas que respondem às perguntas do projeto sobre os dados de transporte aéreo da ANAC.
+
+As consultas utilizam a view workspace.default.vw_voos_completos (camada Gold) que já junta a tabela fato com todas as dimensões.
+
+A contagem de voos/decolagens é feita como SUM(DECOLAGENS) da tabela fato, onde cada linha agrega uma ou mais decolagens realizadas na etapa de voo.
+
+**Pergunta 1: Como a quantidade de passageiros transportados evoluiu ao longo dos anos?**
+
+<img width="908" height="721" alt="image" src="https://github.com/user-attachments/assets/3761ffd8-9925-4d06-82fb-e918c9b1574a" />
+
+<img width="971" height="484" alt="image" src="https://github.com/user-attachments/assets/80571ac7-1119-4a30-940b-5be0595a92bb" />
+
+A evolução mostra três fases bem distintas:
+
+Crescimento sustentado (2000–2019): o número de passageiros saiu de cerca de 38,6 milhões em 2000 para 121,6 milhões em 2019, um crescimento de mais de 3x em quase duas décadas. Houve uma pequena queda entre 2002 e 2003, mas o movimento predominante foi de expansão contínua, com destaque para o salto entre 2009 e 2013 (de 71 para 112 milhões), período de forte expansão da aviação doméstica no Brasil.
+
+Colapso da pandemia (2020–2021): em 2020 o total despenca para 52,4 milhões — uma queda de mais de 55% em relação a 2019 — reflexo direto da paralisação do transporte aéreo pela Covid-19. 2021 ainda é um ano de recuperação parcial, com 68,8 milhões.
+
+Recuperação e novo recorde (2022–2025): o setor se recupera rapidamente: 100 milhões em 2022, superando o patamar pré-pandemia já em 2023 (115,4 milhões) e batendo recorde histórico em 2025, com 132,9 milhões de passageiros — o maior valor da série.
+
+A quantidade de 2026 (79 milhões) aparece mais baixo, pois se trata de um ano ainda em andamento.
+
+
+**Pergunta 2: Quais foram as rotas com maior movimentação de passageiros ao longo do período analisado?**
+*Neste caso a consulta foi limitada a 20*
+
+<img width="1338" height="672" alt="image" src="https://github.com/user-attachments/assets/4accf20b-2877-4450-8321-b277dc6d7ad6" />
+
+<img width="919" height="880" alt="image" src="https://github.com/user-attachments/assets/0d0566ed-e302-4d1c-8720-4cfd4062aff7" />
+
+O gráfico deixa claro um padrão dominado por poucos eixos, todos ligados a São Paulo:
+
+A ponte aérea SP-RJ lidera com folga: as duas direções (São Paulo→Rio e Rio→São Paulo) somam cerca de 107,7 milhões de passageiros, mais que o dobro do segundo colocado. É de longe a rota mais movimentada do país, refletindo a intensa integração entre os dois maiores centros econômicos do Brasil.
+
+São Paulo aparece em quase todas as rotas do top 20: seja como origem ou destino (via Congonhas/SP ou Guarulhos/GRU), a cidade está presente em praticamente todas as 20 linhas, conectando-se com Rio de Janeiro, Brasília, Salvador, Recife, Porto Alegre, Curitiba e Belo Horizonte — confirmando seu papel de hub central da malha aérea nacional.
+
+Segundo bloco de rotas relevantes (SP-Brasília): com cerca de 22-23 milhões por direção, essa é a segunda ligação mais forte, ainda assim bem abaixo da ponte aérea SP-RJ.
+
+Cauda mais homogênea: a partir da 5ª posição, as rotas ficam mais próximas entre si, na faixa de 16 a 19,5 milhões de passageiros — todas conectando Guarulhos ou São Paulo a capitais regionais (Salvador, Recife, Porto Alegre, Curitiba, Belo Horizonte), cada uma com volume bidirecional bem equilibrado (ida e volta somam valores muito próximos).
+
+Isso mostra uma malha concentrada em poucos corredores de alta densidade, com São Paulo funcionando como o principal centro de conexão do transporte aéreo brasileiro.
+
+
+**Pergunta 3:Pergunta 3: Quais empresas aéreas apresentaram a maior média de passageiros por decolagem?**
+*Neste caso a consulta foi limitada a 20*
+
+<img width="1129" height="700" alt="image" src="https://github.com/user-attachments/assets/6f0ac30c-a8b3-4dfb-9638-6a89f21e4b16" />
+
+<img width="1100" height="805" alt="image" src="https://github.com/user-attachments/assets/705816f6-48d5-42f5-ae8e-be355c5fa7c9" />
+
+O ranking é dominado quase inteiramente por companhias internacionais de longo curso, o que faz sentido: voos internacionais usam aeronaves maiores (wide-body) e têm menos frequência que voos domésticos.
+
+Whitejets aparece disparada em 1º lugar com 540 passageiros/decolagem, mas isso vem de apenas 39 decolagens e 21 mil passageiros no total. Seria necessário mais informações para validade dos dados que hoje não temos em nosso projeto.
+
+Grupo de liderança consistente (KLM, Norwegian UK, Japan Airlines, Air France): entre 260 e 280 passageiros por decolagem, todas companhias que operam em rotas intercontinentais longas.
+
+Bloco intermediário europeu robusto: ITA Airways, Air Europa, Edelweiss, Ibéria, Alitalia e Lufthansa formam um grupo estável na faixa de 217 a 258 passageiros/decolagem — reflexo do padrão europeu de voos transatlânticos com boa ocupação.
+
+TAP se destaca pelo volume, não pela média: apesar de ter a maior base de passageiros e decolagens da lista (33,4 milhões de passageiros em mais de 158 mil decolagens), fica na 19ª posição em média (211,16) — sinal de uma operação mais pulverizada, com voos menores e mais frequentes, provavelmente incluindo rotas regionais entre Brasil e Portugal.
+
+Em resumo: a métrica de "passageiros por decolagem" favorece companhias intercontinentais com aeronaves grandes e poucas frequências — não deve ser confundida com volume total transportado, onde TAP, KLM e Ibéria lideram disparado.
+
