@@ -266,4 +266,206 @@ Realizado a inclusão da descrição de cada campo:
 
 <img width="889" height="594" alt="image" src="https://github.com/user-attachments/assets/02a73511-bda7-49bc-b6bf-3d52a6f060c5" />
 
+### Camada Gold
 
+### Dimensão empresa
+
+A tabela dimensão armazena as empresas aéreas presentes nos dados da ANAC. Cada empresa possui um identificador único (EMPRESA_ID) que foi definido como chave primária (PK) desta tabela.
+
+**Dicionário de Colunas**
+
+| Coluna | Tipo | Descrição | Chave |
+| --- | --- | --- | --- |
+| `EMPRESA_ID` | int | Identificador único sequencial da empresa aérea, gerado por `ROW_NUMBER()` ordenado por `EMPRESA_NOME` | **Primária** |
+| `EMPRESA_NOME` | string | Nome completo da empresa aérea conforme registro da ANAC | — |
+| `EMPRESA_NACIONALIDADE` | string | Nacionalidade da empresa aérea. Valores possíveis: `BRASILEIRA` ou `ESTRANGEIRA` | — |
+
+**Regras de Carga**
+
+1. **Origem dos dados:** `workspace.default.dados_anac_silver`
+2. **Deduplicação:** `SELECT DISTINCT` garante que cada empresa aparece apenas uma vez
+3. **Filtro de qualidade:** linhas com `EMPRESA_NOME IS NULL` são removidas
+4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY EMPRESA_NOME)` atribui IDs sequenciais em ordem alfabética
+
+<img width="947" height="577" alt="image" src="https://github.com/user-attachments/assets/1f38b7eb-b275-42af-8717-6ae29e4c0673" />
+
+Consulta dos dados na tabela dim_empresa_gold:
+
+<img width="957" height="519" alt="image" src="https://github.com/user-attachments/assets/67e9fa36-6912-4055-87db-c8b8c9c155cc" />
+
+
+### Dimensão aeroporto
+
+A tabela dimensão aeroporto armazena os aeroportos presentes nos dados da ANAC. Cada aeroporto possui um identificador único (AEROPORTO_ID) que foi definido como chave primaria desta tabela, tanto para os aeroportos de origem quanto para os de destino.
+A tabela foi construída unindo os aeroportos de origem e destino da Silver, pois um mesmo aeroporto pode ser origem num voo e destino noutro. Foi verificado que não há inconsistências de país para um mesmo nome de aeroporto entre origem e destino.
+
+**Dicionário de Colunas**
+
+| Coluna | Tipo | Descrição | Chave |
+| --- | --- | --- | --- |
+| `AEROPORTO_ID` | int | Identificador único sequencial do aeroporto, gerado por `ROW_NUMBER()` ordenado por `AEROPORTO_NOME` | **Primária** |
+| `AEROPORTO_NOME` | string | Nome do aeroporto conforme registro da ANAC | — |
+| `PAIS` | string | País onde o aeroporto está localizado | — |
+
+**Regras de Carga**
+
+1. **Origem dos dados:** `workspace.default.dados_anac_silver`
+2. **União de origem e destino:** `UNION` entre os aeroportos de origem (`AEROPORTO_DE_ORIGEM_NOME` + `AEROPORTO_DE_ORIGEM_PAIS`) e destino (`AEROPORTO_DE_DESTINO_NOME` + `AEROPORTO_DE_DESTINO_PAIS`), eliminando duplicatas automaticamente
+3. **Filtro de qualidade:** linhas com `AEROPORTO_NOME IS NULL` são removidas (5.212 linhas com origem NULL foram mantidas na Silver mas não geram registro na dimensão)
+4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY AEROPORTO_NOME)` atribui IDs sequenciais em ordem alfabética
+5. **Validação de consistência:** verificado que nenhum aeroporto possui país diferente entre origem e destino (0 inconsistências)
+
+<img width="949" height="584" alt="image" src="https://github.com/user-attachments/assets/93f4f244-fb93-48fc-a475-ebbe43f732ff" />
+
+
+Consulta dos dados na tabela dim_aeroporto_gold:
+
+<img width="709" height="548" alt="image" src="https://github.com/user-attachments/assets/4a272880-dc49-4244-9431-f3fd1111bc3f" />
+
+
+### Dimensão natureza
+
+A tabela dimensão natureza classifica os voos conforme a natureza da operação. Cada tipo de natureza possui um identificador único (NATUREZA_ID) utilizado como chave primária desta tabela.
+
+**Dicionário de Colunas**
+
+| Coluna | Tipo | Descrição | Chave |
+| --- | --- | --- | --- |
+| `NATUREZA_ID` | int | Identificador único sequencial, gerado por `ROW_NUMBER()` ordenado por `NATUREZA` | **Primária** |
+| `NATUREZA` | string | Tipo de natureza do voo. Valores: `DOMÉSTICA` ou `INTERNACIONAL` | — |
+
+**Regras de Carga**
+
+1. **Origem dos dados:** `workspace.default.dados_anac_silver`
+2. **Deduplicação:** `SELECT DISTINCT` garante que cada tipo de natureza aparece apenas uma vez
+3. **Filtro de qualidade:** linhas com `NATUREZA IS NULL` são removidas
+4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY NATUREZA)` atribui IDs sequenciais em ordem alfabética
+
+<img width="632" height="347" alt="image" src="https://github.com/user-attachments/assets/34f8136e-177b-4706-8a8f-21deecd14953" />
+
+Consulta dos dados na tabela dim_natureza_gold:
+
+<img width="612" height="270" alt="image" src="https://github.com/user-attachments/assets/83df141e-fa31-4529-83d9-da82586696c2" />
+
+
+### Dimensão Grupo Voo
+
+A tabela dimensão grupo voo classifica os voos conforme o grupo de operação. Cada tipo de grupo possui um identificador único (`GRUPO_VOO_ID`) utilizado como chave primária desta tabela.
+
+## Dicionário de Colunas
+
+| Coluna | Tipo | Descrição | Chave |
+| --- | --- | --- | --- |
+| `GRUPO_VOO_ID` | int | Identificador único sequencial, gerado por `ROW_NUMBER()` ordenado por `GRUPO_DE_VOO` | **Primária** |
+| `GRUPO_DE_VOO` | string | Tipo de grupo do voo. Valores: `IMPRODUTIVO`, `NÃO IDENTIFICADO`, `NÃO REGULAR`, `REGULAR` | — |
+
+## Regras de Carga
+
+1. **Origem dos dados:** `workspace.default.dados_anac_silver`
+2. **Deduplicação:** `SELECT DISTINCT` garante que cada tipo de grupo aparece apenas uma vez
+3. **Filtro de qualidade:** linhas com `GRUPO_DE_VOO IS NULL` são removidas
+4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY GRUPO_DE_VOO)` atribui IDs sequenciais em ordem alfabética
+
+<img width="635" height="348" alt="image" src="https://github.com/user-attachments/assets/70368a1d-b494-4dd3-bb61-892bc570502a" />
+
+
+Consulta dos dados na tabela dim_grupo_voo_gold:
+
+<img width="625" height="374" alt="image" src="https://github.com/user-attachments/assets/8a2c2a27-01f0-43c4-bfda-89a9b077fe45" />
+
+### Fato Voo
+
+A tabela fato armazena os voos registrados pela ANAC. Cada linha representa um voo único, com chaves estrangeiras para as dimensões de empresa, aeroporto (origem e destino), natureza e grupo de voo. As métricas de passageiros, distância, assentos e decolagens são mantidas diretamente na fato.
+
+**Dicionário de Colunas**
+
+| Coluna | Tipo | Descrição | Chave |
+| --- | --- | --- | --- |
+| `VOO_ID` | int | Identificador único sequencial do voo, gerado por `ROW_NUMBER()` | **Primária** |
+| `EMPRESA_ID` | int | FK para `dim_empresa_gold` | **Estrangeira** |
+| `AEROPORTO_ORIGEM_ID` | int | FK para `dim_aeroporto_gold` (aeroporto de origem). Pode ser NULL para voos internacionais sem origem registrada | **Estrangeira** |
+| `AEROPORTO_DESTINO_ID` | int | FK para `dim_aeroporto_gold` (aeroporto de destino) | **Estrangeira** |
+| `NATUREZA_ID` | int | FK para `dim_natureza_gold` | **Estrangeira** |
+| `GRUPO_VOO_ID` | int | FK para `dim_grupo_voo_gold`. Pode ser NULL (2 registros sem grupo) | **Estrangeira** |
+| `ANO` | int | Ano do voo. Mantido direto na fato para filtros e agrupamentos | — |
+| `MES` | int | Mês do voo. Mantido direto na fato para filtros e agrupamentos | — |
+| `MES_ANO` | string | Combinação mês/ano no formato `MM/AAAA` (ex: `01/2026`). Útil para exibição em relatórios | — |
+| `PASSAGEIROS_PAGOS` | int | Total de passageiros pagos. Pode ser NULL | — |
+| `PASSAGEIROS_GRATIS` | int | Total de passageiros grátis. Pode ser NULL | — |
+| `DISTANCIA_VOADA_KM` | int | Distância voada em km. Pode ser NULL (21,8% dos registros) | — |
+| `ASSENTOS` | int | Total de assentos. Pode ser NULL (21,7% dos registros) | — |
+| `DECOLAGENS` | int | Quantidade de decolagens realizadas na etapa de voo | — |
+
+**Regras de Carga**
+
+1. **Origem dos dados:** `workspace.default.dados_anac_silver`
+2. **Joins:** `LEFT JOIN` com todas as dimensões para preservar linhas com campos NULL
+3. **Preservação de NULLs:** linhas com `AEROPORTO_ORIGEM_ID = NULL` (5.212 voos internacionais sem origem) são mantidas
+4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY ...)` atribui IDs sequenciais
+5. **MES_ANO:** gerado por `CONCAT(LPAD(CAST(MES AS STRING), 2, '0'), '/', CAST(ANO AS STRING))`
+
+<img width="652" height="771" alt="image" src="https://github.com/user-attachments/assets/267218f0-18ef-45e9-b1e1-1ec9a3068ffc" />
+
+Consulta de alguns dados da tabela dim_grupo_voo_gold:
+
+<img width="954" height="494" alt="image" src="https://github.com/user-attachments/assets/27e0726f-092d-4bc4-b795-b6aa101e9975" />
+
+Retorno dessa consulta:
+
+| VOO_ID | EMPRESA_ID | AEROPORTO_ORIGEM_ID | AEROPORTO_DESTINO_ID | NATUREZA_ID | GRUPO_VOO_ID |  ANO | MES | MES_ANO | PASSAGEIROS_PAGOS | PASSAGEIROS_GRATIS | DISTANCIA_VOADA_KM | ASSENTOS | DECOLAGENS |
+| -----: | ---------: | ------------------: | -------------------: | ----------: | -----------: | ---: | --: | ------- | ----------------: | -----------------: | -----------------: | -------: | ---------: |
+|      1 |          1 |                 556 |                  136 |           2 |            3 | 2017 |   3 | 03/2017 |                 0 |                  0 |               null |     null |       null |
+|      2 |          1 |                 556 |                  562 |           2 |            3 | 2017 |   3 | 03/2017 |                 0 |                  0 |               1701 |        0 |          1 |
+|      3 |          1 |                 562 |                  136 |           2 |            3 | 2017 |   3 | 03/2017 |                 0 |                  0 |               1787 |        0 |          1 |
+|      4 |          1 |                 598 |                  136 |           2 |            3 | 2017 |   3 | 03/2017 |                 0 |                  0 |               null |     null |       null |
+|      5 |          1 |                 598 |                  556 |           2 |            3 | 2017 |   3 | 03/2017 |                 0 |                  0 |               2193 |        0 |          1 |
+|      6 |          1 |                 598 |                  562 |           2 |            3 | 2017 |   3 | 03/2017 |                 0 |                  0 |               null |     null |       null |
+|      7 |          1 |                 147 |                  587 |           2 |            3 | 2017 |   9 | 09/2017 |                 0 |                  0 |               3895 |        0 |          1 |
+|      8 |          1 |                 147 |                  598 |           2 |            3 | 2017 |   9 | 09/2017 |                 0 |                  0 |               null |     null |       null |
+|      9 |          1 |                 587 |                  598 |           2 |            3 | 2017 |   9 | 09/2017 |                 0 |                  0 |               2243 |        0 |          1 |
+|     10 |          1 |                 598 |                  147 |           2 |            3 | 2017 |   9 | 09/2017 |                 0 |                  0 |               5808 |        0 |          1 |
+
+### View Voos
+
+Foi criada a View vw_voos_completos a partir da tabela fato fato_voos_gold, realizando a integração com as tabelas de dimensões do modelo estrela. A View disponibiliza, em uma única estrutura lógica, as informações descritivas das empresas, aeroportos, natureza e grupo de voo, juntamente com as principais métricas da movimentação aérea, como passageiros, distância, assentos e decolagens. Dessa forma, facilita a consulta e a análise dos dados, evitando a necessidade de realizar os JOINs entre as tabelas de forma manual.
+
+**Dicionário de Colunas**
+
+| Coluna | Tipo | Origem | Descrição |
+| --- | --- | --- | --- |
+| `VOO_ID` | int | `fato_voos_gold` | Identificador único sequencial do voo |
+| `ANO` | int | `fato_voos_gold` | Ano do voo |
+| `MES` | int | `fato_voos_gold` | Mês do voo |
+| `MES_ANO` | string | `fato_voos_gold` | Combinação mês/ano no formato `MM/AAAA` |
+| `EMPRESA_NOME` | string | `dim_empresa_gold` | Nome completo da empresa aérea |
+| `EMPRESA_NACIONALIDADE` | string | `dim_empresa_gold` | `BRASILEIRA` ou `ESTRANGEIRA` |
+| `AEROPORTO_ORIGEM_NOME` | string | `dim_aeroporto_gold` | Nome do aeroporto de origem. NULL em 5.212 voos internacionais |
+| `AEROPORTO_ORIGEM_PAIS` | string | `dim_aeroporto_gold` | País de origem. NULL nos mesmos 5.212 voos |
+| `AEROPORTO_DESTINO_NOME` | string | `dim_aeroporto_gold` | Nome do aeroporto de destino |
+| `AEROPORTO_DESTINO_PAIS` | string | `dim_aeroporto_gold` | País de destino |
+| `NATUREZA` | string | `dim_natureza_gold` | `DOMÉSTICA` ou `INTERNACIONAL` |
+| `GRUPO_DE_VOO` | string | `dim_grupo_voo_gold` | `IMPRODUTIVO`, `NÃO IDENTIFICADO`, `NÃO REGULAR` ou `REGULAR`. NULL em 2 registros |
+| `PASSAGEIROS_PAGOS` | int | `fato_voos_gold` | Total de passageiros pagos. Pode ser NULL |
+| `PASSAGEIROS_GRATIS` | int | `fato_voos_gold` | Total de passageiros grátis. Pode ser NULL |
+| `DISTANCIA_VOADA_KM` | int | `fato_voos_gold` | Distância voada em km. Pode ser NULL (21,7% dos registros) |
+| `ASSENTOS` | int | `fato_voos_gold` | Total de assentos. Pode ser NULL (21,7% dos registros) |
+| `DECOLAGENS` | int | `fato_voos_gold` | Quantidade de decolagens realizadas na etapa de voo. Pode ser NULL (21,7% dos registros) |
+
+**Joins da View**
+
+| Alias | Tabela | Tipo | Chave de Junção |
+| --- | --- | --- | --- |
+| `f` | `fato_voos_gold` | — | Tabela base |
+| `e` | `dim_empresa_gold` | `LEFT JOIN` | `f.EMPRESA_ID = e.EMPRESA_ID` |
+| `ao` | `dim_aeroporto_gold` | `LEFT JOIN` | `f.AEROPORTO_ORIGEM_ID = ao.AEROPORTO_ID` |
+| `ad` | `dim_aeroporto_gold` | `LEFT JOIN` | `f.AEROPORTO_DESTINO_ID = ad.AEROPORTO_ID` |
+| `n` | `dim_natureza_gold` | `LEFT JOIN` | `f.NATUREZA_ID = n.NATUREZA_ID` |
+| `g` | `dim_grupo_voo_gold` | `LEFT JOIN` | `f.GRUPO_VOO_ID = g.GRUPO_VOO_ID` |
+
+Esta view é consumida por todas as 5 perguntas do projeto:
+
+1. Evolução de passageiros por ano — `GROUP BY ANO`
+2. Top rotas por passageiros — `GROUP BY AEROPORTO_ORIGEM_NOME, AEROPORTO_DESTINO_NOME`
+3. Média de passageiros por decolagem — `SUM(DECOLAGENS)` como divisor
+4. Rotas com maiores distâncias — `MAX(DISTANCIA_VOADA_KM)`
+5. Registros com mais passageiros — `ORDER BY total_passageiros DESC`
