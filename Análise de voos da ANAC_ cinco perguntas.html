@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Análise de voos da ANAC: cinco perguntas</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--ink:#1b1b1a;--muted:#5f5e5a;--grid:#e3e2dc;--s1:#2a78d6;--s2:#eb6834;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171716;--card:#20201f;--ink:#f0efec;--muted:#b4b2a9;--grid:#333331;--s1:#3987e5;--s2:#d95926}}
+:root[data-theme="dark"]{--bg:#171716;--card:#20201f;--ink:#f0efec;--muted:#b4b2a9;--grid:#333331;--s1:#3987e5;--s2:#d95926}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:1000px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px}
+p.sub{margin:0 0 20px;color:var(--muted);font-size:14px}
+section{background:var(--card);border:1px solid var(--grid);border-radius:12px;padding:16px;margin-bottom:20px}
+h2{font-size:17px;font-weight:600;margin:0 0 4px}
+p.note{margin:0 0 10px;color:var(--muted);font-size:13px}
+.leg{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--muted);margin-bottom:8px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.wrap{position:relative;width:100%}
+</style>
+</head>
+<body>
+<main>
+<h1>Voos da ANAC: cinco perguntas</h1>
+<p class="sub">Cada linha da base soma as decolagens de uma empresa em uma rota durante um mês</p>
+
+<section><h2>1. Como os passageiros transportados evoluíram ao longo dos anos?</h2>
+<p class="note">2026 está incompleto na base.</p>
+<div class="leg"><span><i style="background:var(--s1)"></i>Ano completo</span><span><i style="background:var(--s2)"></i>2026 (parcial)</span></div>
+<div class="wrap" style="height:380px"><canvas id="c1" role="img" aria-label="Passageiros por ano de 2000 a 2026: 38,6 milhões em 2000, 121,7 milhões em 2019, queda para 52,4 milhões em 2020 e recorde de 132,9 milhões em 2025."></canvas></div></section>
+
+<section><h2>2. Quais rotas tiveram maior movimentação de passageiros?</h2>
+<p class="note">Top 20 rotas, cada sentido separado. O tooltip mostra a quantidade de voos.</p>
+<div class="wrap" style="height:780px"><canvas id="c2" role="img" aria-label="Top 20 rotas por passageiros, lideradas por São Paulo para Rio de Janeiro (53,9 milhões) e Rio de Janeiro para São Paulo (53,8 milhões)."></canvas></div></section>
+
+<section><h2>3. Quais empresas têm a maior média de passageiros por decolagem?</h2>
+<p class="note">Whitejets tem só 39 decolagens e não é comparável às demais. O tooltip mostra passageiros e decolagens.</p>
+<div class="leg"><span><i style="background:var(--s2)"></i>Whitejets (amostra pequena)</span><span><i style="background:var(--s1)"></i>Demais empresas</span></div>
+<div class="wrap" style="height:780px"><canvas id="c3" role="img" aria-label="Top 20 empresas por média de passageiros por decolagem: Whitejets 540, KLM 280, Norwegian UK 268, Japan Airlines 261 e Air France 259 no topo."></canvas></div></section>
+
+<section><h2>4. Quais rotas tiveram as maiores distâncias voadas?</h2>
+<p class="note">Atenção: cada valor é a maior distância acumulada em um mês (km por voo × decolagens do mês), não a distância entre os aeródromos. Este gráfico será substituído quando a consulta por distância por decolagem for executada.</p>
+<div class="wrap" style="height:520px"><canvas id="c4" role="img" aria-label="Top 10 rotas por maior distância acumulada em um mês, lideradas por Guarulhos para Doha com 1.043.504 km."></canvas></div></section>
+
+<section><h2>5. Quais registros mensais tiveram mais passageiros?</h2>
+<p class="note">Top 10, todos na ponte aérea São Paulo–Rio de Janeiro (366 km por decolagem). O tooltip mostra pagos, grátis, decolagens, assentos e ocupação.</p>
+<div class="leg"><span><i style="background:var(--s1)"></i>TAM Linhas Aéreas S.A.</span><span><i style="background:var(--s2)"></i>GOL Linhas Aéreas S.A. (ex-VRG)</span></div>
+<div class="wrap" style="height:680px"><canvas id="c5" role="img" aria-label="Top 10 registros mensais por passageiros. São Paulo para Rio de Janeiro pela TAM em 12/2019 lidera com 93.719 passageiros."></canvas></div></section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var css=getComputedStyle(document.documentElement);
+function v(n){return css.getPropertyValue(n).trim()}
+var ink=v('--ink'),muted=v('--muted'),grid=v('--grid'),s1=v('--s1'),s2=v('--s2');
+var f0=function(n){return Math.round(n).toLocaleString('pt-BR')};
+var f1=function(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})};
+var f2=function(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})};
+
+var anos=[2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
+var pax=[38648361,40107695,40008782,38188226,42200355,50408315,55035245,60775826,64792452,71203924,87054203,101784909,109610630,112005233,119302771,119707642,111457276,114384204,120104760,121651373,52433193,68762139,100084311,115362473,121360316,132902708,79093270];
+new Chart(document.getElementById('c1'),{type:'line',
+data:{labels:anos,datasets:[{data:pax,borderColor:s1,borderWidth:2,pointRadius:4,pointHoverRadius:6,pointBackgroundColor:pax.map(function(x,i){return i===26?s2:s1}),
+segment:{borderColor:function(c){return c.p1DataIndex===26?s2:s1},borderDash:function(c){return c.p1DataIndex===26?[6,4]:undefined}}}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return f0(c.parsed.y)+' passageiros'}}}},
+scales:{x:{grid:{display:false},ticks:{color:muted,font:{size:12},autoSkip:false,maxRotation:90,minRotation:90},title:{display:true,text:'Ano',color:muted}},
+y:{beginAtZero:true,grid:{color:grid},ticks:{color:muted,font:{size:12},callback:function(x){return (x/1e6)+' mi'}},title:{display:true,text:'Passageiros transportados',color:muted}}}}});
+
+function hbar(id,labels,data,colors,thick,fmt,tip,xt,pad){
+new Chart(document.getElementById(id),{type:'bar',
+data:{labels:labels,datasets:[{data:data,backgroundColor:colors,borderRadius:4,barThickness:thick}]},
+options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:pad}},
+plugins:{legend:{display:false},tooltip:{callbacks:{label:tip}}},
+scales:{x:{beginAtZero:true,grid:{color:grid},ticks:{color:muted,font:{size:12},callback:function(x){return x.toLocaleString('pt-BR')}},title:{display:true,text:xt,color:muted}},
+y:{grid:{display:false},ticks:{color:ink,font:{size:11},autoSkip:false}}}},
+plugins:[{id:'vals',afterDatasetsDraw:function(ch){var c=ch.ctx;c.save();c.font='12px system-ui,sans-serif';c.fillStyle=ink;c.textBaseline='middle';ch.getDatasetMeta(0).data.forEach(function(b,i){c.fillText(fmt(data[i],i),b.x+6,b.y)});c.restore()}}]});}
+
+var r2=[['SÃO PAULO → RIO DE JANEIRO',587452,53949158],['RIO DE JANEIRO → SÃO PAULO',583384,53790305],['SÃO PAULO → BRASÍLIA',210743,23070152],['BRASÍLIA → SÃO PAULO',209173,22848154],['RIO DE JANEIRO → GUARULHOS',233825,19475429],['BRASÍLIA → RIO DE JANEIRO',193313,19454080],['RIO DE JANEIRO → BRASÍLIA',191827,19417812],['GUARULHOS → RIO DE JANEIRO',234433,19027414],['SALVADOR → GUARULHOS',153662,18966973],['GUARULHOS → SALVADOR',158116,18775088],['RECIFE → GUARULHOS',131262,18624146],['GUARULHOS → RECIFE',131680,18621096],['PORTO ALEGRE → GUARULHOS',156678,18204097],['GUARULHOS → PORTO ALEGRE',153312,18045086],['SÃO PAULO → PORTO ALEGRE',137198,17846470],['PORTO ALEGRE → SÃO PAULO',136168,17641995],['SÃO PAULO → SÃO JOSÉ DOS PINHAIS',172295,16711598],['SÃO JOSÉ DOS PINHAIS → SÃO PAULO',171037,16560914],['SÃO PAULO → CONFINS',147267,16437136],['CONFINS → SÃO PAULO',146387,16258947]];
+hbar('c2',r2.map(function(r){return r[0]}),r2.map(function(r){return r[2]}),s1,20,function(n){return f0(n)},function(c){return [f0(c.parsed.x)+' passageiros',f0(r2[c.dataIndex][1])+' voos']},'Total de passageiros',72);
+
+var e3=[['Whitejets Transportes Aéreos',540.15,21066,39],['KLM Cia. Real Holandesa de Aviação',279.74,7801026,27887],['Norwegian Air UK',267.63,107587,402],['Japan Airlines International',260.74,1022354,3921],['Air France (Société Air France)',258.75,15488703,59859],['ITA Airways (Italia Trasporto Aereo)',257.24,1788591,6953],['Air Europa Líneas Aéreas',253.5,3824484,15087],['Edelweiss Air AG',246.57,197258,800],['Ibéria Líneas Aéreas de España',246.13,9727150,39521],['Iberworld Airlines',236.1,29748,126],['El Al Israel Airlines',229.67,128155,558],['Alitalia Società Aerea Italiana',228.26,5194620,22757],['Condor Flugdienst GmbH',225.26,803956,3569],['Aigle Azur',222.62,100178,450],['LOT Polish Airlines',222.07,19098,86],['Air Caraïbes Atlantique',220.67,1324,6],['Deutsche Lufthansa A.G.',217.2,9815421,45191],['Etihad Airways',216.78,530450,2447],['TAP Transportes Aéreos Portugueses',211.16,33409071,158217],['Air Transat A.T. Inc. do Brasil',207.96,20796,100]];
+hbar('c3',e3.map(function(r){return r[0]}),e3.map(function(r){return r[1]}),e3.map(function(r,i){return i===0?s2:s1}),20,function(n){return f1(n)},function(c){var r=e3[c.dataIndex];return [f2(r[1])+' passageiros por decolagem',f0(r[2])+' passageiros em '+f0(r[3])+' decolagens']},'Passageiros por decolagem',48);
+
+var d4=[['GUARULHOS (BRASIL) → DOHA (QATAR)',1043504,7839],['DOHA (QATAR) → GUARULHOS (BRASIL)',1019788,7814],['GUARULHOS (BRASIL) → PARIS (FRANÇA)',1015740,29105],['PARIS (FRANÇA) → GUARULHOS (BRASIL)',1015740,28966],['PANAMA (PANAMÁ) → GUARULHOS (BRASIL)',951082,29754],['GUARULHOS (BRASIL) → PANAMA (PANAMÁ)',945996,29814],['GUARULHOS (BRASIL) → MIAMI, FLORIDA (EUA)',815176,45669],['MIAMI, FLORIDA (EUA) → GUARULHOS (BRASIL)',808602,48406],['GUARULHOS (BRASIL) → LISBOA (PORTUGAL)',769695,20976],['LISBOA (PORTUGAL) → GUARULHOS (BRASIL)',769695,20839]];
+hbar('c4',d4.map(function(r){return r[0]}),d4.map(function(r){return r[1]}),s1,26,function(n){return f0(n)+' km'},function(c){return [f0(c.parsed.x)+' km acumulados no mês',f0(d4[c.dataIndex][2])+' decolagens na rota (todo o período)']},'Distância acumulada em um mês (km)',88);
+
+var T='TAM LINHAS AÉREAS S.A.',G='GOL LINHAS AÉREAS S.A. (EX- VRG LINHAS AÉREAS S.A.)';
+var d5=[['12/2019',T,'SÃO PAULO','RIO DE JANEIRO',93719,92357,1362,701,107394],['01/2019',T,'RIO DE JANEIRO','SÃO PAULO',93347,91980,1367,718,103392],['10/2019',T,'RIO DE JANEIRO','SÃO PAULO',92828,91760,1068,731,105414],['01/2020',T,'RIO DE JANEIRO','SÃO PAULO',91898,90450,1448,693,106470],['09/2014',G,'RIO DE JANEIRO','SÃO PAULO',91515,88965,2550,805,142407],['12/2019',G,'SÃO PAULO','RIO DE JANEIRO',90239,88017,2222,699,124878],['12/2018',T,'SÃO PAULO','RIO DE JANEIRO',89804,88386,1418,704,101376],['09/2014',G,'SÃO PAULO','RIO DE JANEIRO',88861,86134,2727,804,142191],['10/2019',T,'SÃO PAULO','RIO DE JANEIRO',88398,87606,792,737,106278],['12/2014',G,'SÃO PAULO','RIO DE JANEIRO',88375,85788,2587,745,125157]];
+hbar('c5',d5.map(function(r){return [r[2]+' → '+r[3],(r[1]===T?'TAM':'GOL')+' · mês '+r[0]+' · '+f0(r[7])+' decolagens']}),d5.map(function(r){return r[4]}),d5.map(function(r){return r[1]===T?s1:s2}),28,function(n){return f0(n)},function(c){var r=d5[c.dataIndex];return [r[1],'Total no mês: '+f0(r[4])+' passageiros ('+f1(r[4]/r[7])+' por decolagem)','Pagos: '+f0(r[5])+' · Grátis: '+f0(r[6]),'Assentos: '+f0(r[8])+' · Ocupação: '+f1(r[4]/r[8]*100)+'%']},'Total de passageiros no mês',56);
+</script>
+</body>
+</html>
