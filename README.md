@@ -300,7 +300,7 @@ Retorno da consulta:
 
 ### Camada Gold
 
-### Dimensão empresa
+### Dimensão Empresa
 
 A tabela dimensão armazena as empresas aéreas presentes nos dados da ANAC. Cada empresa possui um identificador único (EMPRESA_ID) que foi definido como chave primária (PK) desta tabela.
 
@@ -326,7 +326,7 @@ Consulta dos dados na tabela dim_empresa_gold:
 <img width="957" height="519" alt="image" src="https://github.com/user-attachments/assets/67e9fa36-6912-4055-87db-c8b8c9c155cc" />
 
 
-### Dimensão aeroporto
+### Dimensão Aeroporto
 
 A tabela dimensão aeroporto armazena os aeroportos presentes nos dados da ANAC. Cada aeroporto possui um identificador único (AEROPORTO_ID) que foi definido como chave primaria desta tabela, tanto para os aeroportos de origem quanto para os de destino.
 A tabela foi construída unindo os aeroportos de origem e destino da Silver, pois um mesmo aeroporto pode ser origem num voo e destino noutro. Foi verificado que não há inconsistências de país para um mesmo nome de aeroporto entre origem e destino.
@@ -355,7 +355,7 @@ Consulta dos dados na tabela dim_aeroporto_gold:
 <img width="709" height="548" alt="image" src="https://github.com/user-attachments/assets/4a272880-dc49-4244-9431-f3fd1111bc3f" />
 
 
-### Dimensão natureza
+### Dimensão Natureza
 
 A tabela dimensão natureza classifica os voos conforme a natureza da operação. Cada tipo de natureza possui um identificador único (NATUREZA_ID) utilizado como chave primária desta tabela.
 
@@ -436,6 +436,27 @@ A tabela fato armazena os voos registrados pela ANAC. Cada linha representa um v
 4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY ...)` atribui IDs sequenciais
 5. **MES_ANO:** gerado por `CONCAT(LPAD(CAST(MES AS STRING), 2, '0'), '/', CAST(ANO AS STRING))`
 
+**Tabela Fato → Dimensões**
+
+| Fato (`fato_voos_gold`) | FK | Dimensão | PK | Cardinalidade | NULLs na FK |
+| --- | --- | --- | --- | --- | --- |
+| `EMPRESA_ID` | → | `dim_empresa_gold` | `EMPRESA_ID` | N:1 | 0 |
+| `AEROPORTO_ORIGEM_ID` | → | `dim_aeroporto_gold` | `AEROPORTO_ID` | N:1 | 5.212 (voos internacionais sem origem) |
+| `AEROPORTO_DESTINO_ID` | → | `dim_aeroporto_gold` | `AEROPORTO_ID` | N:1 | 0 |
+| `NATUREZA_ID` | → | `dim_natureza_gold` | `NATUREZA_ID` | N:1 | 0 |
+| `GRUPO_VOO_ID` | → | `dim_grupo_voo_gold` | `GRUPO_VOO_ID` | N:1 | 2 (registros sem grupo) |
+
+**Dimensões (detalhe)**
+
+| Dimensão | PK | Registros | Atributos |
+| --- | --- | --- | --- |
+| `dim_empresa_gold` | `EMPRESA_ID` | 328 | `EMPRESA_NOME`, `EMPRESA_NACIONALIDADE` |
+| `dim_aeroporto_gold` | `AEROPORTO_ID` | 1.058 | `AEROPORTO_NOME`, `PAIS` |
+| `dim_natureza_gold` | `NATUREZA_ID` | 2 | `NATUREZA` (`DOMÉSTICA`, `INTERNACIONAL`) |
+| `dim_grupo_voo_gold` | `GRUPO_VOO_ID` | 4 | `GRUPO_DE_VOO` (`IMPRODUTIVO`, `NÃO IDENTIFICADO`, `NÃO REGULAR`, `REGULAR`) |
+
+> **Nota:** `dim_aeroporto_gold` é usada **duas vezes** na fato — uma para origem e outra para destino. Por isso a tabela tem 5 FKs mas apenas 4 dimensões.
+
 <img width="652" height="771" alt="image" src="https://github.com/user-attachments/assets/267218f0-18ef-45e9-b1e1-1ec9a3068ffc" />
 
 Consulta de alguns dados da tabela dim_grupo_voo_gold:
@@ -456,6 +477,7 @@ Retorno dessa consulta:
 |      8 |          1 |                 147 |                  598 |           2 |            3 | 2017 |   9 | 09/2017 |                 0 |                  0 |               null |     null |       null |
 |      9 |          1 |                 587 |                  598 |           2 |            3 | 2017 |   9 | 09/2017 |                 0 |                  0 |               2243 |        0 |          1 |
 |     10 |          1 |                 598 |                  147 |           2 |            3 | 2017 |   9 | 09/2017 |                 0 |                  0 |               5808 |        0 |          1 |
+
 
 ### View Voos
 
