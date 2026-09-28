@@ -23,6 +23,7 @@ Site: https://sistemas.anac.gov.br/dadosabertos/Voos%20e%20opera%C3%A7%C3%B5es%2
 
 <img width="693" height="222" alt="image" src="https://github.com/user-attachments/assets/2812da7b-dc88-4a94-877f-f741c93d10d3" />
 
+
 *Imagem para ilustrar qual o arquivo .csv utilizado para este projeto.*
 
 A coleta dos dados utilizados neste projeto foi realizada em **13/09/2026**. Como a fonte é atualizada diariamente, a data da coleta foi registrada para garantir a rastreabilidade e identificar a versão dos dados utilizada no desenvolvimento do projeto.
@@ -41,7 +42,9 @@ Volumes são armazenamentos de arquivos gerenciados pelo Unity Catalog.
 
 2. Tabela Bronze: o arquivo .csv original reside no Volume /Volumes/workspace/default/dados_anac e os dados foram materializados como uma tabela Delta em workspace.default.dados_anac_bronze — ambos no catálogo workspace, schema default, com armazenamento físico no S3 da AWS.
 
+
 <img width="359" height="632" alt="image" src="https://github.com/user-attachments/assets/4cfba32f-d15f-458b-a5ab-8139a9246fde" />
+
 
 ## ORGANIZAÇÃO DOS NOTEBOOKS
 
@@ -70,16 +73,19 @@ Além da modelagem, foi realizado o **catálogo de dados**, com a documentação
 
 Após importação dos dados brutos /Volumes/workspace/default/dados_anac, foi realizado a query de consulta abaixo para análise:
 
+
 <img width="1128" height="691" alt="image" src="https://github.com/user-attachments/assets/d7087619-c38e-41d7-8a82-b4e1793a0163" />
 
 
 Após identificado como os dados foram importados, foi realizado a query de criação da Tabela da camada Bronze que armazena os dados estatísticos do transporte aéreo da ANAC em formato bruto, conforme arquivo CSV original.
 Nenhuma transformação ou limpeza é aplicada nesta camada, os dados são fiéis ao arquivo de origem.
 
+
 <img width="1138" height="322" alt="image" src="https://github.com/user-attachments/assets/bb25dbe3-d171-4e3d-9783-6ea0d54e54e9" />
 
 
 Consulta realizada para retornar a quantidade de dados da tabela Bronze:
+
 
 <img width="564" height="253" alt="image" src="https://github.com/user-attachments/assets/5023c9fa-b3bb-4541-9f01-a29d4ceb0afc" />
 
@@ -90,6 +96,7 @@ Consulta para visualizar 10 registros dos dados brutos referentes ao ano de 2026
 
 
 Consulta ao catálogo de dados da tabela Bronze (dados_anac_bronze) via Unity Catalog (information_schema):
+
 
 <img width="717" height="681" alt="image" src="https://github.com/user-attachments/assets/d23dc6f6-a1b4-4729-8f5e-fd0607d309b2" />
 
@@ -167,6 +174,7 @@ A camada Silver recebe os dados da tabela Bronze (`workspace.default.dados_anac_
 
 As duplicatas foram identificadas comparando-se todas as 15 colunas que permaneceram na Silver. Linhas com valores idênticos em todos os campos foram consolidadas em uma única ocorrência.
 
+
 <img width="886" height="773" alt="image" src="https://github.com/user-attachments/assets/3c56eaa4-5f5d-4452-82a5-401fa89485f8" />
 
 
@@ -175,6 +183,7 @@ As duplicatas foram identificadas comparando-se todas as 15 colunas que permanec
 Os valores nulos foram **mantidos** (não substituídos por zero), conforme decisão de negócio. Isso preserva a integridade dos dados e evita introduzir valores artificiais que poderiam distorcer análises.
 
 Quantidade de NULLs por coluna:
+
 
 | Coluna | Linhas com NULL | % do total | Internacionais | Domésticos |
 | --- | --- | --- | --- | --- |
@@ -188,7 +197,9 @@ Quantidade de NULLs por coluna:
 | `ASSENTOS` | 237.803 | 21,69% | 75.173 (32%) | 162.630 (68%) |
 | `DECOLAGENS` | 237.802 | 21,69% | 75.172 (32%) | 162.630 (68%) |
 
+
 Perfil das linhas com origem NULL (5.212 linhas):
+
 
 - 100% são voos `INTERNACIONAL`
 - 87,9% são de empresas estrangeiras (4.579 de 5.212 — American Airlines, Air France, etc.)
@@ -200,6 +211,7 @@ Perfil dos outros NULLs (passageiros, distância e assentos):
 
 Ao contrário dos NULLs de origem (exclusivamente internacionais), os NULLs de passageiros, distância e assentos são **majoritariamente domésticos**:
 
+
 | Coluna NULL | Total | Internacionais | Domésticos | Predominância |
 | --- | --- | --- | --- | --- |
 | `PASSAGEIROS_PAGOS` | 40.296 | 6.763 (17%) | 33.533 (83%) | Doméstica |
@@ -208,7 +220,9 @@ Ao contrário dos NULLs de origem (exclusivamente internacionais), os NULLs de p
 | `ASSENTOS` | 237.803 | 75.173 (32%) | 162.630 (68%) | Doméstica |
 | `DECOLAGENS` | 237.802 | 75.172 (32%) | 162.630 (68%) | Doméstica |
 
+
 Esses NULLs ocorrem principalmente em voos domésticos improdutivos ou não regulares (táxi aéreo, voos sem passageiros registrados), onde a ANAC não registra passageiros, distância, assentos nem decolagens. A preservação desses NULLs (em vez de substituir por zero) evita mascarar a distinção entre "sem dado registrado" e "valor zero".
+
 
 <img width="875" height="759" alt="image" src="https://github.com/user-attachments/assets/271fd420-dcd2-42f5-aff1-491d1286b3de" />
 
@@ -219,6 +233,7 @@ Esses NULLs ocorrem principalmente em voos domésticos improdutivos ou não regu
 **4. Tipos de Dados**
 
 Todas as colunas numéricas restantes já estavam com o tipo correto (`int`), portanto nenhuma conversão foi necessária:
+
 
 | Coluna | Tipo |
 | --- | --- |
@@ -238,28 +253,39 @@ Todas as colunas numéricas restantes já estavam com o tipo correto (`int`), po
 | `ASSENTOS` | int |
 | `DECOLAGENS` | int |
 
+
 **5. Espaços em branco:**
+
 
 <img width="872" height="732" alt="image" src="https://github.com/user-attachments/assets/8c33e462-0525-4da5-9f75-2ed8a7b9b339" />
 
 
 **6. Strings vazias:**
 
+
 <img width="883" height="504" alt="image" src="https://github.com/user-attachments/assets/b4b64358-7adf-417f-9d5e-bc669d204f11" />
+
 
 Query de criação da tabela Silver:
 
+
 <img width="882" height="673" alt="image" src="https://github.com/user-attachments/assets/884a0c12-3306-480e-98ed-12e3063926b3" />
+
 
 Consulta realizada para retornar a quantidade de dados da tabela Silver:
 
+
 <img width="885" height="441" alt="image" src="https://github.com/user-attachments/assets/67406baf-a428-454b-ad98-475334f3aa9c" />
+
 
 Consulta realizada para visualizar 10 registros dos dados brutos referentes ao ano de 2026:
 
+
 <img width="872" height="497" alt="image" src="https://github.com/user-attachments/assets/f81bf491-8f01-4f64-98b3-06d4726d7aa1" />
 
+
 Retorno da query da imagem acima:
+
 
 | EMPRESA_NOME | EMPRESA_NACIONALIDADE | ANO | MES | AEROPORTO_DE_ORIGEM_NOME | AEROPORTO_DE_ORIGEM_PAIS | AEROPORTO_DE_DESTINO_NOME | AEROPORTO_DE_DESTINO_PAIS | NATUREZA | GRUPO_DE_VOO | PASSAGEIROS_PAGOS | PASSAGEIROS_GRATIS | DISTANCIA_VOADA_KM | ASSENTOS | DECOLAGENS |
 | --- | --- | ---: | ---: | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
@@ -274,11 +300,15 @@ Retorno da query da imagem acima:
 | AZUL CONECTA LTDA. (EX TWO TAXI AEREO LTDA) | BRASILEIRA | 2026 | 2 | VARGINHA | BRASIL | CONFINS | BRASIL | DOMÉSTICA | REGULAR | 59 | 2 | 2959 | 99 | 11 |
 | AZUL CONECTA LTDA. (EX TWO TAXI AEREO LTDA) | BRASILEIRA | 2026 | 3 | CONFINS | BRASIL | RIO DE JANEIRO | BRASIL | DOMÉSTICA | REGULAR | 96 | 7 | 7959 | 189 | 21 |
 
+
 Realizado a inclusão da descrição de cada campo:
+
 
 <img width="889" height="594" alt="image" src="https://github.com/user-attachments/assets/02a73511-bda7-49bc-b6bf-3d52a6f060c5" />
 
+
 Retorno da consulta:
+
 
 | col_name | data_type | comment |
 |---|---|---|
@@ -298,6 +328,7 @@ Retorno da consulta:
 | ASSENTOS | int | Total de assentos. NULL em 21,7% dos registros |
 | DECOLAGENS | int | Quantidade de decolagens realizadas na etapa de voo. NULL em 21,7% dos registros |
 
+
 ### Camada Gold
 
 ### Dimensão Empresa
@@ -306,11 +337,13 @@ A tabela dimensão armazena as empresas aéreas presentes nos dados da ANAC. Cad
 
 **Dicionário de Colunas**
 
+
 | Coluna | Tipo | Descrição | Chave |
 | --- | --- | --- | --- |
 | `EMPRESA_ID` | int | Identificador único sequencial da empresa aérea, gerado por `ROW_NUMBER()` ordenado por `EMPRESA_NOME` | **Primária** |
 | `EMPRESA_NOME` | string | Nome completo da empresa aérea conforme registro da ANAC | — |
 | `EMPRESA_NACIONALIDADE` | string | Nacionalidade da empresa aérea. Valores possíveis: `BRASILEIRA` ou `ESTRANGEIRA` | — |
+
 
 **Regras de Carga**
 
@@ -319,9 +352,12 @@ A tabela dimensão armazena as empresas aéreas presentes nos dados da ANAC. Cad
 3. **Filtro de qualidade:** linhas com `EMPRESA_NOME IS NULL` são removidas
 4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY EMPRESA_NOME)` atribui IDs sequenciais em ordem alfabética
 
+
 <img width="947" height="577" alt="image" src="https://github.com/user-attachments/assets/1f38b7eb-b275-42af-8717-6ae29e4c0673" />
 
+
 Consulta dos dados na tabela dim_empresa_gold:
+
 
 <img width="957" height="519" alt="image" src="https://github.com/user-attachments/assets/67e9fa36-6912-4055-87db-c8b8c9c155cc" />
 
@@ -333,13 +369,16 @@ A tabela foi construída unindo os aeroportos de origem e destino da Silver, poi
 
 **Dicionário de Colunas**
 
+
 | Coluna | Tipo | Descrição | Chave |
 | --- | --- | --- | --- |
 | `AEROPORTO_ID` | int | Identificador único sequencial do aeroporto, gerado por `ROW_NUMBER()` ordenado por `AEROPORTO_NOME` | **Primária** |
 | `AEROPORTO_NOME` | string | Nome do aeroporto conforme registro da ANAC | — |
 | `PAIS` | string | País onde o aeroporto está localizado | — |
 
+
 **Regras de Carga**
+
 
 1. **Origem dos dados:** `workspace.default.dados_anac_silver`
 2. **União de origem e destino:** `UNION` entre os aeroportos de origem (`AEROPORTO_DE_ORIGEM_NOME` + `AEROPORTO_DE_ORIGEM_PAIS`) e destino (`AEROPORTO_DE_DESTINO_NOME` + `AEROPORTO_DE_DESTINO_PAIS`), eliminando duplicatas automaticamente
@@ -347,10 +386,12 @@ A tabela foi construída unindo os aeroportos de origem e destino da Silver, poi
 4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY AEROPORTO_NOME)` atribui IDs sequenciais em ordem alfabética
 5. **Validação de consistência:** verificado que nenhum aeroporto possui país diferente entre origem e destino (0 inconsistências)
 
+
 <img width="949" height="584" alt="image" src="https://github.com/user-attachments/assets/93f4f244-fb93-48fc-a475-ebbe43f732ff" />
 
 
 Consulta dos dados na tabela dim_aeroporto_gold:
+
 
 <img width="709" height="548" alt="image" src="https://github.com/user-attachments/assets/4a272880-dc49-4244-9431-f3fd1111bc3f" />
 
@@ -361,21 +402,27 @@ A tabela dimensão natureza classifica os voos conforme a natureza da operação
 
 **Dicionário de Colunas**
 
+
 | Coluna | Tipo | Descrição | Chave |
 | --- | --- | --- | --- |
 | `NATUREZA_ID` | int | Identificador único sequencial, gerado por `ROW_NUMBER()` ordenado por `NATUREZA` | **Primária** |
 | `NATUREZA` | string | Tipo de natureza do voo. Valores: `DOMÉSTICA` ou `INTERNACIONAL` | — |
 
+
 **Regras de Carga**
+
 
 1. **Origem dos dados:** `workspace.default.dados_anac_silver`
 2. **Deduplicação:** `SELECT DISTINCT` garante que cada tipo de natureza aparece apenas uma vez
 3. **Filtro de qualidade:** linhas com `NATUREZA IS NULL` são removidas
 4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY NATUREZA)` atribui IDs sequenciais em ordem alfabética
 
+
 <img width="632" height="347" alt="image" src="https://github.com/user-attachments/assets/34f8136e-177b-4706-8a8f-21deecd14953" />
 
+
 Consulta dos dados na tabela dim_natureza_gold:
+
 
 <img width="612" height="270" alt="image" src="https://github.com/user-attachments/assets/83df141e-fa31-4529-83d9-da82586696c2" />
 
@@ -386,10 +433,12 @@ A tabela dimensão grupo voo classifica os voos conforme o grupo de operação. 
 
 **Dicionário de Colunas**
 
+
 | Coluna | Tipo | Descrição | Chave |
 | --- | --- | --- | --- |
 | `GRUPO_VOO_ID` | int | Identificador único sequencial, gerado por `ROW_NUMBER()` ordenado por `GRUPO_DE_VOO` | **Primária** |
 | `GRUPO_DE_VOO` | string | Tipo de grupo do voo. Valores: `IMPRODUTIVO`, `NÃO IDENTIFICADO`, `NÃO REGULAR`, `REGULAR` | — |
+
 
 **Regras de Carga**
 
@@ -398,18 +447,22 @@ A tabela dimensão grupo voo classifica os voos conforme o grupo de operação. 
 3. **Filtro de qualidade:** linhas com `GRUPO_DE_VOO IS NULL` são removidas
 4. **Geração do ID:** `ROW_NUMBER() OVER (ORDER BY GRUPO_DE_VOO)` atribui IDs sequenciais em ordem alfabética
 
+
 <img width="635" height="348" alt="image" src="https://github.com/user-attachments/assets/70368a1d-b494-4dd3-bb61-892bc570502a" />
 
 
 Consulta dos dados na tabela dim_grupo_voo_gold:
 
+
 <img width="625" height="374" alt="image" src="https://github.com/user-attachments/assets/8a2c2a27-01f0-43c4-bfda-89a9b077fe45" />
+
 
 ### Fato Voo
 
 A tabela fato armazena os voos registrados pela ANAC. Cada linha representa um voo único, com chaves estrangeiras para as dimensões de empresa, aeroporto (origem e destino), natureza e grupo de voo. As métricas de passageiros, distância, assentos e decolagens são mantidas diretamente na fato.
 
 **Dicionário de Colunas**
+
 
 | Coluna | Tipo | Descrição | Chave |
 | --- | --- | --- | --- |
@@ -428,6 +481,7 @@ A tabela fato armazena os voos registrados pela ANAC. Cada linha representa um v
 | `ASSENTOS` | int | Total de assentos. Pode ser NULL (21,7% dos registros) | — |
 | `DECOLAGENS` | int | Quantidade de decolagens realizadas na etapa de voo | — |
 
+
 **Regras de Carga**
 
 1. **Origem dos dados:** `workspace.default.dados_anac_silver`
@@ -438,6 +492,7 @@ A tabela fato armazena os voos registrados pela ANAC. Cada linha representa um v
 
 **Tabela Fato → Dimensões**
 
+
 | Fato (`fato_voos_gold`) | FK | Dimensão | PK | Cardinalidade | NULLs na FK |
 | --- | --- | --- | --- | --- | --- |
 | `EMPRESA_ID` | → | `dim_empresa_gold` | `EMPRESA_ID` | N:1 | 0 |
@@ -446,7 +501,9 @@ A tabela fato armazena os voos registrados pela ANAC. Cada linha representa um v
 | `NATUREZA_ID` | → | `dim_natureza_gold` | `NATUREZA_ID` | N:1 | 0 |
 | `GRUPO_VOO_ID` | → | `dim_grupo_voo_gold` | `GRUPO_VOO_ID` | N:1 | 2 (registros sem grupo) |
 
+
 **Dimensões (detalhe)**
+
 
 | Dimensão | PK | Registros | Atributos |
 | --- | --- | --- | --- |
@@ -455,15 +512,21 @@ A tabela fato armazena os voos registrados pela ANAC. Cada linha representa um v
 | `dim_natureza_gold` | `NATUREZA_ID` | 2 | `NATUREZA` (`DOMÉSTICA`, `INTERNACIONAL`) |
 | `dim_grupo_voo_gold` | `GRUPO_VOO_ID` | 4 | `GRUPO_DE_VOO` (`IMPRODUTIVO`, `NÃO IDENTIFICADO`, `NÃO REGULAR`, `REGULAR`) |
 
+
 > **Nota:** `dim_aeroporto_gold` é usada **duas vezes** na fato — uma para origem e outra para destino. Por isso a tabela tem 5 FKs mas apenas 4 dimensões.
+
 
 <img width="652" height="771" alt="image" src="https://github.com/user-attachments/assets/267218f0-18ef-45e9-b1e1-1ec9a3068ffc" />
 
+
 Consulta de alguns dados da tabela dim_grupo_voo_gold:
+
 
 <img width="954" height="494" alt="image" src="https://github.com/user-attachments/assets/27e0726f-092d-4bc4-b795-b6aa101e9975" />
 
+
 Retorno dessa consulta:
+
 
 | VOO_ID | EMPRESA_ID | AEROPORTO_ORIGEM_ID | AEROPORTO_DESTINO_ID | NATUREZA_ID | GRUPO_VOO_ID |  ANO | MES | MES_ANO | PASSAGEIROS_PAGOS | PASSAGEIROS_GRATIS | DISTANCIA_VOADA_KM | ASSENTOS | DECOLAGENS |
 | -----: | ---------: | ------------------: | -------------------: | ----------: | -----------: | ---: | --: | ------- | ----------------: | -----------------: | -----------------: | -------: | ---------: |
@@ -485,6 +548,7 @@ Foi criada a View vw_voos_completos a partir da tabela fato fato_voos_gold, real
 
 **Dicionário de Colunas**
 
+
 | Coluna | Tipo | Origem | Descrição |
 | --- | --- | --- | --- |
 | `VOO_ID` | int | `fato_voos_gold` | Identificador único sequencial do voo |
@@ -505,7 +569,9 @@ Foi criada a View vw_voos_completos a partir da tabela fato fato_voos_gold, real
 | `ASSENTOS` | int | `fato_voos_gold` | Total de assentos. Pode ser NULL (21,7% dos registros) |
 | `DECOLAGENS` | int | `fato_voos_gold` | Quantidade de decolagens realizadas na etapa de voo. Pode ser NULL (21,7% dos registros) |
 
+
 **Joins da View**
+
 
 | Alias | Tabela | Tipo | Chave de Junção |
 | --- | --- | --- | --- |
@@ -515,6 +581,7 @@ Foi criada a View vw_voos_completos a partir da tabela fato fato_voos_gold, real
 | `ad` | `dim_aeroporto_gold` | `LEFT JOIN` | `f.AEROPORTO_DESTINO_ID = ad.AEROPORTO_ID` |
 | `n` | `dim_natureza_gold` | `LEFT JOIN` | `f.NATUREZA_ID = n.NATUREZA_ID` |
 | `g` | `dim_grupo_voo_gold` | `LEFT JOIN` | `f.GRUPO_VOO_ID = g.GRUPO_VOO_ID` |
+
 
 Esta view é consumida por todas as 5 perguntas do projeto:
 
@@ -526,7 +593,9 @@ Esta view é consumida por todas as 5 perguntas do projeto:
 
 Por fim, o projeto final ficou dessa forma:
 
+
 <img width="480" height="743" alt="image" src="https://github.com/user-attachments/assets/d8695e10-99e0-4c2f-9f47-2aa8bbe8fd66" />
+
 
 <img width="475" height="883" alt="image" src="https://github.com/user-attachments/assets/25e92456-bc89-4619-bda3-be9e3b3e9a1a" />
 
@@ -541,9 +610,12 @@ A contagem de voos/decolagens é feita como SUM(DECOLAGENS) da tabela fato, onde
 
 **Pergunta 1: Como a quantidade de passageiros transportados evoluiu ao longo dos anos?**
 
+
 <img width="907" height="622" alt="image" src="https://github.com/user-attachments/assets/fb94c580-6b2a-4fe5-98b8-adcddc41c386" />
 
+
 Retorno da consulta:
+
 
 | ANO | total_passageiros | passageiros_pagos | passageiros_gratis |
 |---:|---:|---:|---:|
@@ -575,7 +647,9 @@ Retorno da consulta:
 | 2025 | 132902708 | 130685074 | 2217634 |
 | 2026 | 79093270 | 77621120 | 1472150 |
 
+
 <img width="1027" height="520" alt="image" src="https://github.com/user-attachments/assets/ec3aad88-39b9-4e23-9feb-90be0bb16ac0" />
+
 
 A evolução mostra cinco momentos:
 
@@ -585,15 +659,17 @@ A evolução mostra cinco momentos:
 - Recuperação (2022–2025): 100,1 milhões em 2022 (82% de 2019) e 115,4 milhões em 2023 (94,8%). Em 2024 o total chega a 121,4 milhões, praticamente o nível de 2019 (99,8%). Em 2025 chega a 132,9 milhões, recorde da série: 9,2% acima de 2019 e 9,5% acima de 2024.
 - 2026: os 79,1 milhões refletem um ano em andamento, e não uma queda.
 
-Os passageiros gratuitos ficam abaixo de 5% em todos os anos e são cerca de 2% nos anos recentes. Esta análise não separa voos domésticos de internacionais, então não dá para atribuir o crescimento de 2009–2013 a um segmento específico.
 
 **Pergunta 2: Quais foram as rotas com maior movimentação de passageiros ao longo do período analisado?**
 
 *Consulta limitada a 20*
 
+
 <img width="1319" height="676" alt="image" src="https://github.com/user-attachments/assets/ef88b6de-32ca-4bf6-94cd-f873227611f7" />
 
+
 Retorno da consulta:
+
 
 | AEROPORTO_ORIGEM_NOME | AEROPORTO_ORIGEM_PAIS | AEROPORTO_DESTINO_NOME | AEROPORTO_DESTINO_PAIS | quantidade_voos | total_passageiros |
 |---|---|---|---|---:|---:|
@@ -618,7 +694,9 @@ Retorno da consulta:
 | SÃO PAULO | BRASIL | CONFINS | BRASIL | 147267 | 16437136 |
 | CONFINS | BRASIL | SÃO PAULO | BRASIL | 146387 | 16258947 |
 
+
 <img width="956" height="860" alt="image" src="https://github.com/user-attachments/assets/59583595-d5e5-45e2-b692-231afbaa6cb1" />
+
 
 Os 20 registros são 10 pares de aeroportos, cada um com dois sentidos:
 
@@ -635,7 +713,9 @@ O ranking agrupa por nome do aeroporto, então uma mesma cidade pode reunir mais
 
 *Consulta limitada a 20*
 
+
 <img width="1129" height="700" alt="image" src="https://github.com/user-attachments/assets/6f0ac30c-a8b3-4dfb-9638-6a89f21e4b16" />
+
 
 Retorno da consulta:
 
@@ -662,7 +742,9 @@ Retorno da consulta:
 | TAP - TRANSPORTES AÉREOS PORTUGUESES S/A | 33409071 | 158217 | 211.16 |
 | AIR TRANSAT A.T. INC DO BRASIL | 20796 | 100 | 207.96 |
 
+
 <img width="960" height="879" alt="image" src="https://github.com/user-attachments/assets/b4e58ef2-b175-4f8f-97c3-5a45fecdc630" />
+
 
 - Whitejets (540 passageiros por decolagem) não é comparável ao restante. O valor vem de apenas 39 decolagens e 21 mil passageiros, e é muito superior ao que a maioria das aeronaves comerciais comporta. Sugere um problema de registro, e seria preciso validá-lo antes de usar.
 - Outras amostras pequenas pedem cautela: Air Caraïbes (6 decolagens), LOT (86), Air Transat (100) e Iberworld (126).
@@ -670,12 +752,17 @@ Retorno da consulta:
 - Bloco intermediário: ITA Airways, Air Europa, Ibéria, Alitalia, Condor e Lufthansa ficam entre 217 e 257 passageiros por decolagem.
 - TAP tem a menor média do top 20 entre as grandes (211,2), mas o maior volume. São 33,4 milhões de passageiros em 158 mil decolagens, mais que o dobro da segunda colocada em passageiros, a Air France (15,5 milhões). Em seguida vêm Lufthansa (9,8 milhões), Ibéria (9,7 milhões) e KLM (7,8 milhões).
 
+
 **Pergunta 4: Quais rotas apresentaram as maiores distâncias entre os aeródromos de origem e destino?**
+
 *Consulta limitada a 10*
+
 
 <img width="1397" height="724" alt="image" src="https://github.com/user-attachments/assets/a612fd5b-6c01-4c43-ad9b-8734fb3ec9b2" />
 
+
 Retorno da consulta:
+
 
 | AEROPORTO_ORIGEM_NOME | AEROPORTO_ORIGEM_PAIS | AEROPORTO_DESTINO_NOME | AEROPORTO_DESTINO_PAIS | distancia_voada_km | quantidade_decolagens |
 |---|---|---|---|---:|---:|
@@ -690,7 +777,9 @@ Retorno da consulta:
 | GUARULHOS | BRASIL | LISBOA | PORTUGAL | 769695 | 20976 |
 | LISBOA | PORTUGAL | GUARULHOS | BRASIL | 769695 | 20839 |
 
+
 <img width="974" height="624" alt="image" src="https://github.com/user-attachments/assets/354ff3af-a193-4f42-a25b-ef0683d6f4e0" />
+
 
 - Guarulhos ↔ Doha (Qatar) tem a maior distância entre aeródromos. Guarulhos → Doha soma 1.043.504 km e Doha → Guarulhos, 1.019.788 km. É a ligação mais longa da lista, mas também uma das menos frequentes, com cerca de 7,8 mil decolagens por sentido.
 - Guarulhos ↔ Paris ocupa o terceiro e o quarto lugar, empatados. Os dois sentidos têm exatamente 1.015.740 km, com cerca de 29 mil decolagens cada. É uma rota longa e com frequência alta.
@@ -704,7 +793,9 @@ Todas as 10 rotas mais longas são intercontinentais e têm Guarulhos como uma d
 
 *Consulta limitada a 10*
 
+
 <img width="1526" height="707" alt="image" src="https://github.com/user-attachments/assets/3c42dadb-b9d2-4719-ac71-6b9256e86bbd" />
+
 
 Retorno da consulta:
 
@@ -721,7 +812,9 @@ Retorno da consulta:
 | 849702 | 10/2019 | TAM LINHAS AÉREAS S.A. | BRASILEIRA | SÃO PAULO | RIO DE JANEIRO | DOMÉSTICA | REGULAR | 88398 | 87606 | 792 | 269742 | 737 | 366 | 119.9 | 106278 |
 | 366834 | 12/2014 | GOL LINHAS AÉREAS S.A. (EX- VRG LINHAS AÉREAS S.A.) | BRASILEIRA | SÃO PAULO | RIO DE JANEIRO | DOMÉSTICA | REGULAR | 88375 | 85788 | 2587 | 272670 | 745 | 366 | 118.6 | 125157 |
 
+
 <img width="962" height="783" alt="image" src="https://github.com/user-attachments/assets/376434c6-a176-4021-8895-704779898a86" />
+
 
 - Todos os 10 registros são da ponte aérea São Paulo–Rio de Janeiro. São voos domésticos regulares de empresas brasileiras, num trecho de 366 km. Cada barra é o total de um mês para uma empresa em uma rota, com todas as decolagens somadas. A TAM tem 6 registros e a GOL, 4.
 - O recorde é da TAM, em dezembro de 2019. São Paulo → Rio de Janeiro somou 93.719 passageiros em 701 decolagens, média de 133,7 por decolagem. Rio → São Paulo (TAM, janeiro de 2019) vem logo atrás, com 93.347 passageiros em 718 decolagens. Os cinco primeiros ficam dentro de 2,4% um do outro.
@@ -729,6 +822,7 @@ Retorno da consulta:
 - A TAM enche mais os aviões. Seus registros têm 120 a 134 passageiros por decolagem e ocupação de 83% a 90% dos assentos. Os da GOL têm 110 a 129 passageiros por decolagem e ocupação de 62% a 72%.
 - A GOL oferecia mais assentos por decolagem: entre 168 e 179, contra 144 a 154 da TAM. Os dois registros de setembro de 2014 têm o maior número de decolagens (805 e 804) e a menor ocupação (64% e 62%).
 - Passageiros gratuitos são poucos, mas variam por empresa: de 0,9% a 1,6% na TAM e de 2,5% a 3,1% na GOL.
+
 
 ##AUTOAVALIAÇÃO
 
