@@ -278,6 +278,26 @@ Realizado a inclusão da descrição de cada campo:
 
 <img width="889" height="594" alt="image" src="https://github.com/user-attachments/assets/02a73511-bda7-49bc-b6bf-3d52a6f060c5" />
 
+Retorno da consulta:
+
+| col_name | data_type | comment |
+|---|---|---|
+| EMPRESA_NOME | string | Nome completo da empresa aérea |
+| EMPRESA_NACIONALIDADE | string | Nacionalidade da empresa: BRASILEIRA ou ESTRANGEIRA |
+| ANO | int | Ano do registro |
+| MES | int | Mês do registro (1 a 12) |
+| AEROPORTO_DE_ORIGEM_NOME | string | Nome do aeroporto de origem. NULL para voos internacionais sem origem registrada (5.212 registros) |
+| AEROPORTO_DE_ORIGEM_PAIS | string | País do aeroporto de origem. NULL para voos internacionais sem origem registrada |
+| AEROPORTO_DE_DESTINO_NOME | string | Nome do aeroporto de destino |
+| AEROPORTO_DE_DESTINO_PAIS | string | País do aeroporto de destino |
+| NATUREZA | string | Natureza do voo: DOMÉSTICA ou INTERNACIONAL |
+| GRUPO_DE_VOO | string | Grupo do voo: IMPRODUTIVO, NÃO IDENTIFICADO, NÃO REGULAR ou REGULAR. NULL em 2 registros |
+| PASSAGEIROS_PAGOS | int | Total de passageiros pagos. NULL em 3,7% dos registros |
+| PASSAGEIROS_GRATIS | int | Total de passageiros grátis. NULL em 3,7% dos registros |
+| DISTANCIA_VOADA_KM | int | Distância voada em km. NULL em 21,8% dos registros |
+| ASSENTOS | int | Total de assentos. NULL em 21,7% dos registros |
+| DECOLAGENS | int | Quantidade de decolagens realizadas na etapa de voo. NULL em 21,7% dos registros |
+
 ### Camada Gold
 
 ### Dimensão empresa
