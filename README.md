@@ -11,8 +11,8 @@ Desenvolver um pipeline de Engenharia de Dados para tratamento, organização e 
 1. Como a quantidade de passageiros transportados evoluiu ao longo dos anos?
 2. Quais foram as rotas com maior movimentação de passageiros ao longo do período analisado?
 3. Quais empresas aéreas apresentaram a maior média de passageiros por decolagem?
-4. Quais rotas apresentaram as maiores distâncias voadas?
-5. Quais foram os registros de voo com maior quantidade de passageiros transportados?
+4. Quais rotas apresentaram as maiores distâncias entre os aeródromos de origem e destino?
+5. Quais etapas de voo apresentaram as maiores quantidades de passageiros transportados?
 
 
 ## BUSCA DOS DADOS
@@ -499,57 +499,203 @@ A contagem de voos/decolagens é feita como SUM(DECOLAGENS) da tabela fato, onde
 
 **Pergunta 1: Como a quantidade de passageiros transportados evoluiu ao longo dos anos?**
 
-<img width="908" height="721" alt="image" src="https://github.com/user-attachments/assets/3761ffd8-9925-4d06-82fb-e918c9b1574a" />
+<img width="907" height="622" alt="image" src="https://github.com/user-attachments/assets/fb94c580-6b2a-4fe5-98b8-adcddc41c386" />
 
-<img width="971" height="484" alt="image" src="https://github.com/user-attachments/assets/80571ac7-1119-4a30-940b-5be0595a92bb" />
+Retorno da consulta:
 
-A evolução mostra três fases bem distintas:
+| ANO | total_passageiros | passageiros_pagos | passageiros_gratis |
+|---:|---:|---:|---:|
+| 2000 | 38648361 | 37413460 | 1234901 |
+| 2001 | 40107695 | 38545299 | 1562396 |
+| 2002 | 40008782 | 38301313 | 1707469 |
+| 2003 | 38188226 | 37203867 | 984359 |
+| 2004 | 42200355 | 41174131 | 1026224 |
+| 2005 | 50408315 | 49106864 | 1301451 |
+| 2006 | 55035245 | 53863577 | 1171668 |
+| 2007 | 60775826 | 59611480 | 1164346 |
+| 2008 | 64792452 | 63378804 | 1413648 |
+| 2009 | 71203924 | 69555497 | 1648427 |
+| 2010 | 87054203 | 85343074 | 1711129 |
+| 2011 | 101784909 | 99766620 | 2018289 |
+| 2012 | 109610630 | 107403734 | 2206896 |
+| 2013 | 112005233 | 109724283 | 2280950 |
+| 2014 | 119302771 | 117127171 | 2175600 |
+| 2015 | 119707642 | 117646606 | 2061036 |
+| 2016 | 111457276 | 109532901 | 1924375 |
+| 2017 | 114384204 | 112475650 | 1908554 |
+| 2018 | 120104760 | 117742390 | 2362370 |
+| 2019 | 121651373 | 119229088 | 2422285 |
+| 2020 | 52433193 | 51277301 | 1155892 |
+| 2021 | 68762139 | 67413559 | 1348580 |
+| 2022 | 100084311 | 98021465 | 2062846 |
+| 2023 | 115362473 | 113052661 | 2309812 |
+| 2024 | 121360316 | 119186351 | 2173965 |
+| 2025 | 132902708 | 130685074 | 2217634 |
+| 2026 | 79093270 | 77621120 | 1472150 |
 
-Crescimento sustentado (2000–2019): o número de passageiros saiu de cerca de 38,6 milhões em 2000 para 121,6 milhões em 2019, um crescimento de mais de 3x em quase duas décadas. Houve uma pequena queda entre 2002 e 2003, mas o movimento predominante foi de expansão contínua, com destaque para o salto entre 2009 e 2013 (de 71 para 112 milhões), período de forte expansão da aviação doméstica no Brasil.
+<img width="1027" height="520" alt="image" src="https://github.com/user-attachments/assets/ec3aad88-39b9-4e23-9feb-90be0bb16ac0" />
 
-Colapso da pandemia (2020–2021): em 2020 o total despenca para 52,4 milhões — uma queda de mais de 55% em relação a 2019 — reflexo direto da paralisação do transporte aéreo pela Covid-19. 2021 ainda é um ano de recuperação parcial, com 68,8 milhões.
+A evolução mostra cinco momentos:
 
-Recuperação e novo recorde (2022–2025): o setor se recupera rapidamente: 100 milhões em 2022, superando o patamar pré-pandemia já em 2023 (115,4 milhões) e batendo recorde histórico em 2025, com 132,9 milhões de passageiros — o maior valor da série.
+- Crescimento (2000–2015): o total saiu de 38,6 milhões para 119,7 milhões de passageiros, mais de 3x. Houve pequenas quedas em 2002 (−0,2%) e 2003 (−4,6%), e o trecho mais acelerado foi 2009–2013, de 71,2 para 112,0 milhões.
+- Oscilação e novo pico (2016–2019): em 2016 o total caiu 6,9% (de 119,7 para 111,5 milhões). Depois houve recuperação até 121,7 milhões em 2019, o maior valor até então.
+- Pandemia (2020–2021): em 2020 o total cai para 52,4 milhões, uma queda de 56,9% em relação a 2019. Em 2021 sobe 31,1% (68,8 milhões), mas ainda fica 43,5% abaixo de 2019.
+- Recuperação (2022–2025): 100,1 milhões em 2022 (82% de 2019) e 115,4 milhões em 2023 (94,8%). Em 2024 o total chega a 121,4 milhões, praticamente o nível de 2019 (99,8%). Em 2025 chega a 132,9 milhões, recorde da série: 9,2% acima de 2019 e 9,5% acima de 2024.
+- 2026: os 79,1 milhões refletem um ano em andamento, e não uma queda.
 
-A quantidade de 2026 (79 milhões) aparece mais baixo, pois se trata de um ano ainda em andamento.
-
+Os passageiros gratuitos ficam abaixo de 5% em todos os anos e são cerca de 2% nos anos recentes. Esta análise não separa voos domésticos de internacionais, então não dá para atribuir o crescimento de 2009–2013 a um segmento específico.
 
 **Pergunta 2: Quais foram as rotas com maior movimentação de passageiros ao longo do período analisado?**
-*Neste caso a consulta foi limitada a 20*
 
-<img width="1338" height="672" alt="image" src="https://github.com/user-attachments/assets/4accf20b-2877-4450-8321-b277dc6d7ad6" />
+*Consulta limitada a 20*
 
-<img width="919" height="880" alt="image" src="https://github.com/user-attachments/assets/0d0566ed-e302-4d1c-8720-4cfd4062aff7" />
+<img width="1319" height="676" alt="image" src="https://github.com/user-attachments/assets/ef88b6de-32ca-4bf6-94cd-f873227611f7" />
 
-O gráfico deixa claro um padrão dominado por poucos eixos, todos ligados a São Paulo:
+Retorno da consulta:
 
-A ponte aérea SP-RJ lidera com folga: as duas direções (São Paulo→Rio e Rio→São Paulo) somam cerca de 107,7 milhões de passageiros, mais que o dobro do segundo colocado. É de longe a rota mais movimentada do país, refletindo a intensa integração entre os dois maiores centros econômicos do Brasil.
+| AEROPORTO_ORIGEM_NOME | AEROPORTO_ORIGEM_PAIS | AEROPORTO_DESTINO_NOME | AEROPORTO_DESTINO_PAIS | quantidade_voos | total_passageiros |
+|---|---|---|---|---:|---:|
+| SÃO PAULO | BRASIL | RIO DE JANEIRO | BRASIL | 587452 | 53949158 |
+| RIO DE JANEIRO | BRASIL | SÃO PAULO | BRASIL | 583384 | 53790305 |
+| SÃO PAULO | BRASIL | BRASÍLIA | BRASIL | 210743 | 23070152 |
+| BRASÍLIA | BRASIL | SÃO PAULO | BRASIL | 209173 | 22848154 |
+| RIO DE JANEIRO | BRASIL | GUARULHOS | BRASIL | 233825 | 19475429 |
+| BRASÍLIA | BRASIL | RIO DE JANEIRO | BRASIL | 193313 | 19454080 |
+| RIO DE JANEIRO | BRASIL | BRASÍLIA | BRASIL | 191827 | 19417812 |
+| GUARULHOS | BRASIL | RIO DE JANEIRO | BRASIL | 234433 | 19027414 |
+| SALVADOR | BRASIL | GUARULHOS | BRASIL | 153662 | 18966973 |
+| GUARULHOS | BRASIL | SALVADOR | BRASIL | 158116 | 18775088 |
+| RECIFE | BRASIL | GUARULHOS | BRASIL | 131262 | 18624146 |
+| GUARULHOS | BRASIL | RECIFE | BRASIL | 131680 | 18621096 |
+| PORTO ALEGRE | BRASIL | GUARULHOS | BRASIL | 156678 | 18204097 |
+| GUARULHOS | BRASIL | PORTO ALEGRE | BRASIL | 153312 | 18045086 |
+| SÃO PAULO | BRASIL | PORTO ALEGRE | BRASIL | 137198 | 17846470 |
+| PORTO ALEGRE | BRASIL | SÃO PAULO | BRASIL | 136168 | 17641995 |
+| SÃO PAULO | BRASIL | SÃO JOSÉ DOS PINHAIS | BRASIL | 172295 | 16711598 |
+| SÃO JOSÉ DOS PINHAIS | BRASIL | SÃO PAULO | BRASIL | 171037 | 16560914 |
+| SÃO PAULO | BRASIL | CONFINS | BRASIL | 147267 | 16437136 |
+| CONFINS | BRASIL | SÃO PAULO | BRASIL | 146387 | 16258947 |
 
-São Paulo aparece em quase todas as rotas do top 20: seja como origem ou destino (via Congonhas/SP ou Guarulhos/GRU), a cidade está presente em praticamente todas as 20 linhas, conectando-se com Rio de Janeiro, Brasília, Salvador, Recife, Porto Alegre, Curitiba e Belo Horizonte — confirmando seu papel de hub central da malha aérea nacional.
+<img width="956" height="860" alt="image" src="https://github.com/user-attachments/assets/59583595-d5e5-45e2-b692-231afbaa6cb1" />
 
-Segundo bloco de rotas relevantes (SP-Brasília): com cerca de 22-23 milhões por direção, essa é a segunda ligação mais forte, ainda assim bem abaixo da ponte aérea SP-RJ.
+Os 20 registros são 10 pares de aeroportos, cada um com dois sentidos:
 
-Cauda mais homogênea: a partir da 5ª posição, as rotas ficam mais próximas entre si, na faixa de 16 a 19,5 milhões de passageiros — todas conectando Guarulhos ou São Paulo a capitais regionais (Salvador, Recife, Porto Alegre, Curitiba, Belo Horizonte), cada uma com volume bidirecional bem equilibrado (ida e volta somam valores muito próximos).
+- A ponte aérea São Paulo–Rio de Janeiro lidera com folga. Somando os dois sentidos, são 107,7 milhões de passageiros e cerca de 1,17 milhão de decolagens, 2,3x o segundo par (São Paulo–Brasília, com 45,9 milhões).
+- O fluxo é equilibrado nos dois sentidos. Em todos os pares, a diferença entre ida e volta é de no máximo 2,3%.
+- São Paulo é o eixo da malha. Em 9 dos 10 pares, um dos aeroportos é paulistano (SÃO PAULO ou GUARULHOS, como aparecem na base). Eles conectam Rio de Janeiro, Brasília, Salvador, Recife, Porto Alegre, São José dos Pinhais (Curitiba) e Confins (Belo Horizonte). Guarulhos concentra as ligações com Rio, Salvador, Recife e Porto Alegre.
+- Brasília–Rio de Janeiro é a única exceção. Com 38,9 milhões, é o terceiro maior par e supera Rio–Guarulhos (38,5 milhões) e as ligações de Guarulhos com Salvador, Recife e Porto Alegre.
+- Os demais pares ficam entre 32,7 e 38,5 milhões de passageiros.
 
-Isso mostra uma malha concentrada em poucos corredores de alta densidade, com São Paulo funcionando como o principal centro de conexão do transporte aéreo brasileiro.
+O ranking agrupa por nome do aeroporto, então uma mesma cidade pode reunir mais de um aeroporto (como o Rio de Janeiro). O limite de 20 registros cobre só os 10 pares mais movimentados.
 
 
-**Pergunta 3:Pergunta 3: Quais empresas aéreas apresentaram a maior média de passageiros por decolagem?**
-*Neste caso a consulta foi limitada a 20*
+**Pergunta 3: Quais empresas aéreas apresentaram a maior média de passageiros por decolagem?**
+
+*Consulta limitada a 20*
 
 <img width="1129" height="700" alt="image" src="https://github.com/user-attachments/assets/6f0ac30c-a8b3-4dfb-9638-6a89f21e4b16" />
 
-<img width="1100" height="805" alt="image" src="https://github.com/user-attachments/assets/705816f6-48d5-42f5-ae8e-be355c5fa7c9" />
+Retorno da consulta:
 
-O ranking é dominado quase inteiramente por companhias internacionais de longo curso, o que faz sentido: voos internacionais usam aeronaves maiores (wide-body) e têm menos frequência que voos domésticos.
+| EMPRESA_NOME | total_passageiros | total_decolagens | media_passageiros_por_decolagem |
+|---|---:|---:|---:|
+| WHITEJETS TRANSPORTES AÉREOS S.A. | 21066 | 39 | 540.15 |
+| KLM CIA. REAL HOLANDESA DE AVIAÇÃO | 7801026 | 27887 | 279.74 |
+| NORWEGIAN AIR UK LIMITED | 107587 | 402 | 267.63 |
+| JAPAN AIRLINES INTERNATIONAL COMPANY LIMITED | 1022354 | 3921 | 260.74 |
+| SOCIÉTÉ AIR FRANCE | 15488703 | 59859 | 258.75 |
+| ITALIA TRANSPORTO AEREO S.P.A. | 1788591 | 6953 | 257.24 |
+| AIR EUROPA LINEAS AEREAS SOCIEDAD ANONIMA | 3824484 | 15087 | 253.50 |
+| EDELWEISS AIR AG | 197258 | 800 | 246.57 |
+| IBÉRIA LINEAS AEREAS DE ESPAÑA SOCIEDAD ANONIMA OPERADORA | 9727150 | 39521 | 246.13 |
+| IBERWORLD AIRLINES S.A. | 29748 | 126 | 236.10 |
+| EL AL ISRAEL AIRLINES LTD | 128155 | 558 | 229.67 |
+| ALITALIA SOCIETA AEREA ITALIANA S.P.A. | 5194620 | 22757 | 228.26 |
+| CONDOR FLUGDIENST GMBH | 803956 | 3569 | 225.26 |
+| AIGLE AZUR | 100178 | 450 | 222.62 |
+| LOT POLISH AIRLINES | 19098 | 86 | 222.07 |
+| AIR CARAIBES ATLANTIQUE | 1324 | 6 | 220.67 |
+| DEUTSCHE LUFTHANSA A.G. | 9815421 | 45191 | 217.20 |
+| ETIHAD AIRWAYS P.J.S.C. | 530450 | 2447 | 216.78 |
+| TAP - TRANSPORTES AÉREOS PORTUGUESES S/A | 33409071 | 158217 | 211.16 |
+| AIR TRANSAT A.T. INC DO BRASIL | 20796 | 100 | 207.96 |
 
-Whitejets aparece disparada em 1º lugar com 540 passageiros/decolagem, mas isso vem de apenas 39 decolagens e 21 mil passageiros no total. Seria necessário mais informações para validade dos dados que hoje não temos em nosso projeto.
+<img width="960" height="879" alt="image" src="https://github.com/user-attachments/assets/b4e58ef2-b175-4f8f-97c3-5a45fecdc630" />
 
-Grupo de liderança consistente (KLM, Norwegian UK, Japan Airlines, Air France): entre 260 e 280 passageiros por decolagem, todas companhias que operam em rotas intercontinentais longas.
+- Whitejets (540 passageiros por decolagem) não é comparável ao restante. O valor vem de apenas 39 decolagens e 21 mil passageiros, e é muito superior ao que a maioria das aeronaves comerciais comporta. Sugere um problema de registro, e seria preciso validá-lo antes de usar.
+- Outras amostras pequenas pedem cautela: Air Caraïbes (6 decolagens), LOT (86), Air Transat (100) e Iberworld (126).
+- Entre as empresas com volume relevante, KLM lidera com 279,7 passageiros por decolagem, seguida de Japan Airlines (260,7) e Air France (258,8). Norwegian UK aparece com 267,6, mas em apenas 402 decolagens.
+- Bloco intermediário: ITA Airways, Air Europa, Ibéria, Alitalia, Condor e Lufthansa ficam entre 217 e 257 passageiros por decolagem.
+- TAP tem a menor média do top 20 entre as grandes (211,2), mas o maior volume. São 33,4 milhões de passageiros em 158 mil decolagens, mais que o dobro da segunda colocada em passageiros, a Air France (15,5 milhões). Em seguida vêm Lufthansa (9,8 milhões), Ibéria (9,7 milhões) e KLM (7,8 milhões).
 
-Bloco intermediário europeu robusto: ITA Airways, Air Europa, Edelweiss, Ibéria, Alitalia e Lufthansa formam um grupo estável na faixa de 217 a 258 passageiros/decolagem — reflexo do padrão europeu de voos transatlânticos com boa ocupação.
+**Pergunta 4: Quais rotas apresentaram as maiores distâncias entre os aeródromos de origem e destino?**
+*Consulta limitada a 10*
 
-TAP se destaca pelo volume, não pela média: apesar de ter a maior base de passageiros e decolagens da lista (33,4 milhões de passageiros em mais de 158 mil decolagens), fica na 19ª posição em média (211,16) — sinal de uma operação mais pulverizada, com voos menores e mais frequentes, provavelmente incluindo rotas regionais entre Brasil e Portugal.
+<img width="1397" height="724" alt="image" src="https://github.com/user-attachments/assets/a612fd5b-6c01-4c43-ad9b-8734fb3ec9b2" />
 
-Em resumo: a métrica de "passageiros por decolagem" favorece companhias intercontinentais com aeronaves grandes e poucas frequências — não deve ser confundida com volume total transportado, onde TAP, KLM e Ibéria lideram disparado.
+Retorno da consulta:
 
+| AEROPORTO_ORIGEM_NOME | AEROPORTO_ORIGEM_PAIS | AEROPORTO_DESTINO_NOME | AEROPORTO_DESTINO_PAIS | distancia_voada_km | quantidade_decolagens |
+|---|---|---|---|---:|---:|
+| GUARULHOS | BRASIL | DOHA | QATAR | 1043504 | 7839 |
+| DOHA | QATAR | GUARULHOS | BRASIL | 1019788 | 7814 |
+| GUARULHOS | BRASIL | PARIS | FRANÇA | 1015740 | 29105 |
+| PARIS | FRANÇA | GUARULHOS | BRASIL | 1015740 | 28966 |
+| PANAMA | PANAMÁ | GUARULHOS | BRASIL | 951082 | 29754 |
+| GUARULHOS | BRASIL | PANAMA | PANAMÁ | 945996 | 29814 |
+| GUARULHOS | BRASIL | MIAMI, FLORIDA | ESTADOS UNIDOS DA AMÉRICA | 815176 | 45669 |
+| MIAMI, FLORIDA | ESTADOS UNIDOS DA AMÉRICA | GUARULHOS | BRASIL | 808602 | 48406 |
+| GUARULHOS | BRASIL | LISBOA | PORTUGAL | 769695 | 20976 |
+| LISBOA | PORTUGAL | GUARULHOS | BRASIL | 769695 | 20839 |
+
+<img width="974" height="624" alt="image" src="https://github.com/user-attachments/assets/354ff3af-a193-4f42-a25b-ef0683d6f4e0" />
+
+- Guarulhos ↔ Doha (Qatar) tem a maior distância entre aeródromos. Guarulhos → Doha soma 1.043.504 km e Doha → Guarulhos, 1.019.788 km. É a ligação mais longa da lista, mas também uma das menos frequentes, com cerca de 7,8 mil decolagens por sentido.
+- Guarulhos ↔ Paris ocupa o terceiro e o quarto lugar, empatados. Os dois sentidos têm exatamente 1.015.740 km, com cerca de 29 mil decolagens cada. É uma rota longa e com frequência alta.
+- Panamá ↔ Guarulhos vem logo depois. Panamá → Guarulhos tem 951.082 km e Guarulhos → Panamá, 945.996 km, ambos com quase 30 mil decolagens.
+- Miami e Lisboa fecham o top 10. Guarulhos → Miami tem 815.176 km e Miami → Guarulhos, 808.602 km, com o maior volume do grupo (mais de 45 mil decolagens por sentido). Guarulhos ↔ Lisboa tem 769.695 km nos dois sentidos, com cerca de 21 mil decolagens.
+
+Todas as 10 rotas mais longas são intercontinentais e têm Guarulhos como uma das pontas. Os trechos para o Oriente Médio e a Europa são os mais distantes, seguidos pelas rotas para as Américas Central e do Norte.
+
+
+**Pergunta 5: Quais etapas de voo apresentaram as maiores quantidades de passageiros transportados?**
+
+*Consulta limitada a 10*
+
+<img width="1526" height="707" alt="image" src="https://github.com/user-attachments/assets/3c42dadb-b9d2-4719-ac71-6b9256e86bbd" />
+
+Retorno da consulta:
+
+| VOO_ID | MES_ANO | EMPRESA_NOME | EMPRESA_NACIONALIDADE | AEROPORTO_ORIGEM_NOME | AEROPORTO_DESTINO_NOME | NATUREZA | GRUPO_DE_VOO | total_passageiros | PASSAGEIROS_PAGOS | PASSAGEIROS_GRATIS | DISTANCIA_VOADA_KM | DECOLAGENS | distancia_por_decolagem_km | passageiros_por_decolagem | ASSENTOS |
+|---:|---|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 850691 | 12/2019 | TAM LINHAS AÉREAS S.A. | BRASILEIRA | SÃO PAULO | RIO DE JANEIRO | DOMÉSTICA | REGULAR | 93719 | 92357 | 1362 | 256566 | 701 | 366 | 133.7 | 107394 |
+| 845077 | 01/2019 | TAM LINHAS AÉREAS S.A. | BRASILEIRA | RIO DE JANEIRO | SÃO PAULO | DOMÉSTICA | REGULAR | 93347 | 91980 | 1367 | 262788 | 718 | 366 | 130 | 103392 |
+| 849617 | 10/2019 | TAM LINHAS AÉREAS S.A. | BRASILEIRA | RIO DE JANEIRO | SÃO PAULO | DOMÉSTICA | REGULAR | 92828 | 91760 | 1068 | 267546 | 731 | 366 | 127 | 105414 |
+| 851089 | 01/2020 | TAM LINHAS AÉREAS S.A. | BRASILEIRA | RIO DE JANEIRO | SÃO PAULO | DOMÉSTICA | REGULAR | 91898 | 90450 | 1448 | 253638 | 693 | 366 | 132.6 | 106470 |
+| 364265 | 09/2014 | GOL LINHAS AÉREAS S.A. (EX- VRG LINHAS AÉREAS S.A.) | BRASILEIRA | RIO DE JANEIRO | SÃO PAULO | DOMÉSTICA | REGULAR | 91515 | 88965 | 2550 | 294630 | 805 | 366 | 113.7 | 142407 |
+| 406532 | 12/2019 | GOL LINHAS AÉREAS S.A. (EX- VRG LINHAS AÉREAS S.A.) | BRASILEIRA | SÃO PAULO | RIO DE JANEIRO | DOMÉSTICA | REGULAR | 90239 | 88017 | 2222 | 255834 | 699 | 366 | 129.1 | 124878 |
+| 844657 | 12/2018 | TAM LINHAS AÉREAS S.A. | BRASILEIRA | SÃO PAULO | RIO DE JANEIRO | DOMÉSTICA | REGULAR | 89804 | 88386 | 1418 | 257664 | 704 | 366 | 127.6 | 101376 |
+| 364401 | 09/2014 | GOL LINHAS AÉREAS S.A. (EX- VRG LINHAS AÉREAS S.A.) | BRASILEIRA | SÃO PAULO | RIO DE JANEIRO | DOMÉSTICA | REGULAR | 88861 | 86134 | 2727 | 294264 | 804 | 366 | 110.5 | 142191 |
+| 849702 | 10/2019 | TAM LINHAS AÉREAS S.A. | BRASILEIRA | SÃO PAULO | RIO DE JANEIRO | DOMÉSTICA | REGULAR | 88398 | 87606 | 792 | 269742 | 737 | 366 | 119.9 | 106278 |
+| 366834 | 12/2014 | GOL LINHAS AÉREAS S.A. (EX- VRG LINHAS AÉREAS S.A.) | BRASILEIRA | SÃO PAULO | RIO DE JANEIRO | DOMÉSTICA | REGULAR | 88375 | 85788 | 2587 | 272670 | 745 | 366 | 118.6 | 125157 |
+
+<img width="962" height="783" alt="image" src="https://github.com/user-attachments/assets/376434c6-a176-4021-8895-704779898a86" />
+
+- Todos os 10 registros são da ponte aérea São Paulo–Rio de Janeiro. São voos domésticos regulares de empresas brasileiras, num trecho de 366 km. Cada barra é o total de um mês para uma empresa em uma rota, com todas as decolagens somadas. A TAM tem 6 registros e a GOL, 4.
+- O recorde é da TAM, em dezembro de 2019. São Paulo → Rio de Janeiro somou 93.719 passageiros em 701 decolagens, média de 133,7 por decolagem. Rio → São Paulo (TAM, janeiro de 2019) vem logo atrás, com 93.347 passageiros em 718 decolagens. Os cinco primeiros ficam dentro de 2,4% um do outro.
+- Todos os registros são anteriores à pandemia, entre setembro de 2014 e janeiro de 2020. Cada um tem entre 693 e 805 decolagens no mês, ou seja, de 22 a 27 por dia.
+- A TAM enche mais os aviões. Seus registros têm 120 a 134 passageiros por decolagem e ocupação de 83% a 90% dos assentos. Os da GOL têm 110 a 129 passageiros por decolagem e ocupação de 62% a 72%.
+- A GOL oferecia mais assentos por decolagem: entre 168 e 179, contra 144 a 154 da TAM. Os dois registros de setembro de 2014 têm o maior número de decolagens (805 e 804) e a menor ocupação (64% e 62%).
+- Passageiros gratuitos são poucos, mas variam por empresa: de 0,9% a 1,6% na TAM e de 2,5% a 3,1% na GOL.
+
+##AUTOAVALIAÇÃO
+
+A realização deste projeto permitiu ampliar meus conhecimentos sobre o processo de Engenharia de Dados, principalmente em relação às etapas de coleta, tratamento, organização, modelagem e análise de dados. Ao longo do desenvolvimento, pude compreender de forma mais prática o conceito de arquitetura em camadas, utilizando o modelo Medalhão (Bronze, Silver e Gold), além da importância de cada etapa para transformar dados brutos em informações estruturadas e adequadas para análise.
+
+Também pude aprofundar meus conhecimentos sobre qualidade e tratamento de dados, realizando atividades como remoção de duplicidades, tratamento de valores nulos, conversão de tipos de dados e validação das informações. Outro aprendizado importante foi a utilização da modelagem dimensional, com a criação de tabelas de dimensão e fato, além da utilização de identificadores e relacionamentos entre essas estruturas.
+
+O projeto também contribuiu para meu desenvolvimento em SQL e Databricks, especialmente na criação e consulta das tabelas, na organização das diferentes camadas e na elaboração de consultas capazes de responder às perguntas propostas inicialmente. Além disso, a construção do catálogo de dados me ajudou a compreender melhor a importância da documentação dos campos, seus tipos e significados para garantir maior entendimento e governança dos dados.
+
+Atualmente, não atuo diretamente na área de Engenharia de Dados. Em agosto de 2026, iniciei minha atuação profissional como Data Analyst, portanto não tenho contato direto com as atividades desempenhadas por um profissional de Engenharia de Dados. Apesar disso, alguns dos conceitos trabalhados no projeto já faziam parte do meu conhecimento, principalmente por eu já trabalhar com dados e SQL. Inclusive, já desenvolvi views que são utilizadas na camada Gold, o que tornou possível relacionar parte do conteúdo estudado com uma atividade que já faz parte da minha rotina profissional.
+
+Por fim, esse projeto me proporcionou uma visão mais prática e completa sobre o fluxo de dados. Mais do que conhecer os conceitos teoricamente, pude compreender como eles se conectam em um projeto real: desde a obtenção dos dados brutos, passando pelo tratamento e organização, até sua disponibilização estruturada para análise. Esse conhecimento também ampliou minha visão sobre a relação entre as áreas de Engenharia de Dados e Análise de Dados e poderá contribuir para minha evolução profissional.
